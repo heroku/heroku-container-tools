@@ -14,7 +14,7 @@ module.exports = function(topic) {
     run: function(context) {
       docker.startB2D();
       var runImageId = state.get(context.cwd).runImageId;
-      var startImageId = docker.buildImageFromTemplate(context.cwd, TEMPLATE_PATH, {
+      var startImageId = docker.buildEphemeralImage(context.cwd, TEMPLATE_PATH, {
         runImageId: runImageId
       });
       state.set(context.cwd, { startImageId: startImageId });
