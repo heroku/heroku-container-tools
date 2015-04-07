@@ -12,7 +12,6 @@ module.exports = function(topic) {
     help: `help text for ${topic}:run`,
     variableArgs: true,
     run: function(context) {
-      docker.startB2D();
       var imageId = state.get(context.cwd).runImageId;
       runCommand(imageId, context.cwd, context.args);
     }
