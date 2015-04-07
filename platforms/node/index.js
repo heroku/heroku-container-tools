@@ -10,7 +10,7 @@ module.exports = {
     if (exists.sync(path.resolve(dir, 'server.js'))) return true;
   },
   getDockerfile: function(dir) {
-    var templatePath = path.resolve(__dirname, 'run-Dockerfile');
+    var templatePath = path.resolve(__dirname, 'Dockerfile.t');
     var template = fs.readFileSync(templatePath, { encoding: 'utf8' });
     var compiled = _.template(template);
     // TODO: read node engine from package.json in dir
