@@ -5,7 +5,7 @@ var _ = require('lodash');
 var exists = require('is-there');
 var state = require('../lib/state');
 var docker = require('../lib/docker');
-var platforms = require('../lib/platforms');
+var platforms = require('../platforms');
 
 module.exports = function(topic) {
   return {
@@ -13,34 +13,34 @@ module.exports = function(topic) {
     command: 'create',
     description: 'creates a local development environment',
     help: `help text for ${topic}:create`,
-    flags: platforms.getFlags(),
+    flags: [
+      { name: 'template', description: 'create a Dockerfile based on a language template', hasValue: true }
+    ],
     run: function(context) {
-      var dockerfile = path.join(context.cwd, 'Dockerfile');
-      var lang = templatize(context.args, dockerfile, context.cwd) ||
-                 hasDockerfile(dockerfile) ||
-                 platforms.detect(context.cwd);
-
-      if (!lang) {
-        throw new Error('No language flag, Dockerfile, or matching language detected');
-      }
-
-      console.log('lang:', lang);
-      return;
-
-      var imageId = docker.buildImage(context.cwd, dockerfile);
-      state.set(context.cwd, { runImageId: imageId });
+      createDockerfile(context.cwd, context.args.template);
+      createImage(context.cwd);
     }
   };
 };
 
-function templatize(args, dockerfile, dir) {
-  var match = platforms.match(Object.keys(args));
-  if (!match) return;
+function createDockerfile(dir, lang) {
+  var dockerfile = path.join(dir, 'Dockerfile');
+  var platform = lang ? platforms.find(lang) : platforms.detect(dir);
+  if (!platform) return;
 
-  fs.writeFileSync(dockerfile, match.getDockerfile(dir, args));
-  return match.name;
+  var contents = platform.getDockerfile(dir);
+  if (contents) {
+    fs.writeFileSync(dockerfile, contents);
+    console.log(`Wrote Dockerfile for ${platform.name} apps`);
+  }
 }
 
-function hasDockerfile(dockerfile) {
-  if (exists.sync(dockerfile)) return 'Dockerfile';
+function createImage(dir) {
+  var dockerfile = path.join(dir, 'Dockerfile');
+  if (!exists.sync(dockerfile)) {
+    console.error('Error: No Dockerfile found');
+    process.exit();
+  }
+  var imageId = docker.buildImage(dir, dockerfile);
+  state.set(dir, { runImageId: imageId });
 }
