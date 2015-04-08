@@ -3,8 +3,11 @@ var path = require('path');
 var fs = require('fs');
 var request = require('request');
 var child = require('child_process');
+var Progress = require('progress');
 
 const BOOT2DOCKER_PKG = 'https://github.com/boot2docker/osx-installer/releases/download/v1.5.0/Boot2Docker-1.5.0.pkg';
+const INHERIT_STDIO = { stdio: [0, 1, 2] };
+const CHUNK_SIZE = 1024 * 10;
 
 module.exports = function(topic) {
   return {
@@ -15,7 +18,6 @@ module.exports = function(topic) {
     run: function(context) {
       downloadB2D()
         .then(installB2D)
-        .then(forwardPorts)
         .then(showMessage)
         .catch(onFailure);
     }
@@ -23,39 +25,48 @@ module.exports = function(topic) {
 };
 
 function downloadB2D() {
-  console.log('downloading (this can take a while)...');
+  console.log('downloading...');
 
   return new Promise(function(resolve, reject) {
     var outPath = path.join(tmpdir(), 'boot2docker.pkg');
+    var size = 0;
 
     request
-      .get(BOOT2DOCKER_PKG)
+      .get(BOOT2DOCKER_PKG, { gzip: true })
+      .on('response', onResponse)
       .on('error', reject)
       .pipe(fs.createWriteStream(outPath))
       .on('error', reject)
       .on('finish', resolve.bind(this, outPath));
+
+    function onResponse(res) {
+      var len = parseInt(res.headers['content-length'], 10);
+      var bar = new Progress('  boot2docker [:bar] :percent', {
+        complete: '=',
+        incomplete: ' ',
+        width: 20,
+        total: len
+      });
+
+      res.on('data', function (chunk) {
+        bar.tick(chunk.length);
+      });
+
+      res.on('end', function () {
+        console.log('\n');
+      });
+    }
   });
 }
 
 function installB2D(pkg) {
   try {
     console.log('installing...');
-    child.execSync('open -W ' + pkg);
+    child.execSync('open -W ' + pkg, INHERIT_STDIO);
     console.log('initializing boot2docker vm...');
-    child.execSync('boot2docker init');
+    child.execSync('boot2docker init', INHERIT_STDIO);
     console.log('upgrading boot2docker...');
-    child.execSync('boot2docker upgrade');
-    return Promise.resolve();
-  }
-  catch (e) {
-    return Promise.reject(e);
-  }
-}
-
-function forwardPorts() {
-  console.log('forwarding port 3000...');
-  try {
-    child.execSync(`VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port3000,tcp,,3000,,3000" || true`);
+    child.execSync('boot2docker upgrade', INHERIT_STDIO);
     return Promise.resolve();
   }
   catch (e) {
