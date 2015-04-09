@@ -16,6 +16,7 @@ module.exports = function(topic) {
     description: 'installs boot2docker',
     help: `help text for ${topic}:install`,
     run: function(context) {
+      stopB2D();
       downloadB2D()
         .then(installB2D)
         .then(showMessage)
