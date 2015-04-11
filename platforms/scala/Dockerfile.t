@@ -23,4 +23,4 @@ RUN chmod +x /app/target/universal/stage/bin/$APP_NAME
 USER app
 
 EXPOSE 3000
-CMD /app/target/universal/stage/bin/$APP_NAME -Dhttp.port=3000
+CMD /app/target/universal/stage/bin/$APP_NAME -Dhttp.port=$PORT
