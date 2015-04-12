@@ -15,7 +15,7 @@ cat Dockerfile
 Ensure the environment works:
 
 ```
-heroku docker:run node --version
+heroku docker:exec node --version
 ```
 
 # Start with hello world
