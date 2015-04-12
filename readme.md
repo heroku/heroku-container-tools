@@ -41,7 +41,7 @@ make link
 
 ## Plugin API
 
-### docker:init [--template <templateName>]
+### `docker:init [--template <templateName>]`
 
 Initializes a Dockerfile in the current directory.
 
@@ -52,26 +52,26 @@ runs `detect` on each platform to see if a platform can be detected.
 If nothing is detected, creates a Dockerfile from a default 'minimal' template
 based on Heroku's Cedar-14 stack.
 
-### docker:exec <command string>
+### `docker:exec <command string>`
 
 Mounts the current directory into a container built from the Dockerfile,
 then executes the provided command.
 
-### docker:start
+### `docker:start`
 
 Copies the current directory into a container built from the Dockerfile,
 then executes the Dockerfile's default command to start the app.
 
-### docker:open
+### `docker:open`
 
 Opens the container running in the current directory in the default browser.
 
-### docker:release
+### `docker:release`
 
 Builds a slug within the local container then releases it to a Heroku app
 via the Heroku Platform API.
 Creates any containers necessary for the build automatically.
 
-### docker:clean
+### `docker:clean`
 
 Removes all Heroku-Docker images from the Docker host.
