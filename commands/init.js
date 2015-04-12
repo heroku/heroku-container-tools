@@ -32,4 +32,7 @@ function createDockerfile(dir, lang) {
     fs.writeFileSync(dockerfile, contents);
     console.log(`Wrote Dockerfile (${platform.name})`);
   }
+  else {
+    console.log('Nothing to write');
+  }
 }

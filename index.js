@@ -11,8 +11,6 @@ module.exports = {
     require('./commands/start')(TOPIC),
     require('./commands/release')(TOPIC),
 
-    require('./commands/create')(TOPIC),
-    require('./commands/run')(TOPIC),
     require('./commands/open')(TOPIC),
     require('./commands/clean')(TOPIC)
   ]
