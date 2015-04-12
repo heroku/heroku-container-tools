@@ -36,16 +36,23 @@ heroku docker:release
 heroku open
 ```
 
-Or, you could open a shell in Docker to manipulate the project with
+You can also run the server locally in a Dockerized version of Heroku's
+Cedar-14 stack:
+
+```
+heroku docker:start
+heroku docker:open
+```
+
+Finally, you could open a shell in Docker to manipulate the project with
 commands like `npm install`:
 
 ```
 heroku docker:exec bash
 ```
 
-You'll probably want to test the server by simulating Heroku locally:
+...or run such commands directly:
 
 ```
-heroku docker:start
-heroku docker:open
+heroku docker:exec npm install --save express
 ```
