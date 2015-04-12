@@ -9,6 +9,9 @@ git clone https://github.com/heroku/node-js-getting-started.git
 cd node-js-getting-started
 ```
 
+Note: This currently depends on
+[a small change to package.json](https://github.com/heroku/node-js-getting-started/pull/7).
+
 Ensure that you can connect to Docker in this shell:
 
 ```
