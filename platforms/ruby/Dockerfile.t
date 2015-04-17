@@ -26,5 +26,12 @@ ENV PATH /app/heroku/node/bin:$PATH
 ONBUILD COPY . /app/src
 ONBUILD WORKDIR /app/src
 ONBUILD RUN bundle install # TODO: desirable if --path parameter were passed
+
+ONBUILD RUN mkdir -p /app/.profile.d
+ONBUILD RUN echo "export PATH=\"/app/heroku/ruby/bin:/app/heroku/bundler/bin:/app/heroku/node/bin:\$PATH\"" > /app/.profile.d/ruby.sh
+ONBUILD RUN echo "export GEM_PATH=\"/app/heroku/bundler:\$GEM_PATH\"" >> /app/.profile.d/ruby.sh
+
+ONBUILD RUN echo "cd /app/src" >> /app/.profile.d/ruby.sh
+
 ONBUILD EXPOSE 3000
 ONBUILD CMD bundle exec puma -C config/puma.rb # TODO: This is broken
