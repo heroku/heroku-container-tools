@@ -15,9 +15,11 @@ RUN curl -s https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/cedar-14/r
 ENV PATH /app/heroku/ruby/bin:$PATH
 
 RUN mkdir -p /app/heroku/bundler
+RUN mkdir -p /app/src/vendor/bundle
 RUN curl -s https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/bundler-$BUNDLER_VERSION.tgz | tar xz -C /app/heroku/bundler
 ENV PATH /app/heroku/bundler/bin:$PATH
 ENV GEM_PATH=/app/heroku/bundler:$GEM_PATH
+ENV GEM_HOME=/app/src/vendor/bundle
 
 RUN mkdir -p /app/heroku/node
 RUN curl -s https://s3pository.heroku.com/node/v$NODE_ENGINE/node-v$NODE_ENGINE-linux-x64.tar.gz | tar --strip-components=1 -xz -C /app/heroku/node
@@ -29,7 +31,8 @@ ONBUILD RUN bundle install # TODO: desirable if --path parameter were passed
 
 ONBUILD RUN mkdir -p /app/.profile.d
 ONBUILD RUN echo "export PATH=\"/app/heroku/ruby/bin:/app/heroku/bundler/bin:/app/heroku/node/bin:\$PATH\"" > /app/.profile.d/ruby.sh
-ONBUILD RUN echo "export GEM_PATH=\"/app/heroku/bundler:\$GEM_PATH\"" >> /app/.profile.d/ruby.sh
+ONBUILD RUN echo "export GEM_PATH=\"/app/heroku/bundler:/app/heroku/src/vendor/bundle:\$GEM_PATH\"" >> /app/.profile.d/ruby.sh
+ONBUILD RUN echo "export GEM_HOME=\"/app/src/vendor/bundle\"" >> /app/.profile.d/ruby.sh
 
 ONBUILD RUN echo "cd /app/src" >> /app/.profile.d/ruby.sh
 
