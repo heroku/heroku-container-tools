@@ -3,6 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var state = require('../lib/state');
 var docker = require('../lib/docker');
+var dotenv = require('dotenv');
 
 module.exports = function(topic) {
   return {
@@ -19,8 +20,26 @@ module.exports = function(topic) {
 };
 
 function runCommand(imageId, cwd, args) {
+  var envParameters = [];
+  try {
+    var dotenvPath = path.join(cwd, '.env');
+    var dotenvEntries = dotenv.parse(fs.readFileSync(dotenvPath));
+    envParameters = Object.keys(dotenvEntries).map(function(key) {
+      return '-e ' + key + '=' + dotenvEntries[key];
+    });
+  }
+  catch (e) {
+    if (e.code === 'ENOENT') {
+      // no .env file
+    }
+    else {
+      throw e;
+    }
+  }
+
+  var envArgComponent = envParameters.join(' ');
   var command = args.join(' ');
-  var execString = `docker run -p 3000:3000 -v ${cwd}:/app/src -w /app/src --rm -it ${imageId} ${command} || true`;
+  var execString = `docker run -p 3000:3000 -v ${cwd}:/app/src -w /app/src --rm -it ${envArgComponent} ${imageId} ${command} || true`;
   child.execSync(execString, {
     stdio: [0, 1, 2]
   });
