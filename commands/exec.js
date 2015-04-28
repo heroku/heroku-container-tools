@@ -8,7 +8,7 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'exec',
-    help: 'run command in development Docker container',
+    description: 'run command in development Docker container',
     help: 'Run command in Docker container with the current working directory mounted',
     variableArgs: true,
     run: function(context) {
