@@ -8,6 +8,7 @@ var state = require('../lib/state');
 var docker = require('../lib/docker');
 var agent = require('superagent');
 var util = require('heroku-cli-util');
+var yaml = require('yamljs');
 
 process.on('uncaughtException', function(err) {
   console.log('err:', err.stack);
@@ -63,10 +64,9 @@ function release(context) {
 
   function createRemoteSlug(slugPath) {
     console.log('creating remote slug...');
+    var procfileEntries = yaml.load(procfilePath);
     var slugInfo = app.slugs().create({
-      process_types: {
-        web: 'npm start'
-      }
+      process_types: procfileEntries
     });
     return Promise.all([slugPath, slugInfo])
   }
