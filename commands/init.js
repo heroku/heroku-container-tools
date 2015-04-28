@@ -27,15 +27,17 @@ function createDockerfile(dir, lang) {
   var dockerfile = path.join(dir, docker.filename);
   var platform = lang ? platforms.find(lang) : platforms.detect(dir);
   if (!platform) {
-    util.log("Can't create Dockerfile: no matching platform found");
+    util.error('No appropriate language or framework detected, overwrite with `--template`');
     return;
   }
 
   var contents = platform.getDockerfile(dir);
+
   try {
     fs.statSync(dockerfile);
     util.log('Overwriting existing Dockerfile');
-  } catch (e) {}
+  }
+  catch (e) {}
 
   fs.writeFileSync(dockerfile, contents);
   util.log(`Wrote Dockerfile (${platform.name})`);
