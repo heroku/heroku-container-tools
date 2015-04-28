@@ -18,8 +18,8 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'release',
-    description: 'creates a slug tarball from the built image and releases it to your Heroku app',
-    help: `help text for ${topic}:release`,
+    description: 'create and release slug to app',
+    help: 'Create slug tarball from Docker image and release it to Heroku app',
     needsApp: true,
     needsAuth: true,
     run: release
@@ -51,6 +51,10 @@ function release(context) {
     try {
       var slugPath = os.tmpdir();
       var imageId = docker.ensureStartImage(context.cwd);
+      if (!imageId) {
+	return Promise.reject();
+      }
+
       var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git --exclude=.heroku ./app`, {
         encoding: 'utf8'
       }).trim();
