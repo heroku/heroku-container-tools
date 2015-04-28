@@ -31,8 +31,10 @@ function release(context) {
   var app = heroku.apps(context.app);
 
   var procfilePath = path.join(context.cwd, 'Procfile');
-  if (!fs.existsSync(procfilePath))
-  {
+  try {
+    fs.statSync(procfilePath);
+  }
+  catch (e) {
     util.error('Procfile required. Aborting');
     return;
   }
