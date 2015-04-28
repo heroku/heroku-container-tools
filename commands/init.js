@@ -25,22 +25,18 @@ module.exports = function(topic) {
 
 function createDockerfile(dir, lang) {
   var dockerfile = path.join(dir, docker.filename);
+  var platform = lang ? platforms.find(lang) : platforms.detect(dir);
+  if (!platform) {
+    util.log("Can't create Dockerfile: no matching platform found");
+    return;
+  }
+
+  var contents = platform.getDockerfile(dir);
   try {
     fs.statSync(dockerfile);
     util.log('Overwriting existing Dockerfile');
-  }
-  catch (e) {
-  }
+  } catch (e) {}
 
-  var platform = lang ? platforms.find(lang) : platforms.detect(dir);
-  if (!platform) return;
-
-  var contents = platform.getDockerfile(dir);
-  if (contents) {
-    fs.writeFileSync(dockerfile, contents);
-    util.log(`Wrote Dockerfile (${platform.name})`);
-  }
-  else {
-    util.log('Nothing to write');
-  }
+  fs.writeFileSync(dockerfile, contents);
+  util.log(`Wrote Dockerfile (${platform.name})`);
 }
