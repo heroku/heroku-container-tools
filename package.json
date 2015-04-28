@@ -14,11 +14,13 @@
   "author": "Hunter Loftis <hunter@hunterloftis.com>",
   "license": "ISC",
   "dependencies": {
+    "chai": "^2.3.0",
     "heroku-cli-util": "^1.7.0",
     "heroku-client": "^1.9.1",
     "is-there": "^1.1.0",
     "lodash": "3.3.1",
     "mkdirp": "^0.5.0",
+    "mocha": "^2.2.4",
     "node-uuid": "^1.4.3",
     "open": "0.0.5",
     "progress": "^1.1.8",
