@@ -6,6 +6,7 @@ var exists = require('is-there');
 var state = require('../lib/state');
 var docker = require('../lib/docker');
 var platforms = require('../platforms');
+var util = require('heroku-cli-util');
 
 module.exports = function(topic) {
   return {
@@ -24,15 +25,22 @@ module.exports = function(topic) {
 
 function createDockerfile(dir, lang) {
   var dockerfile = path.join(dir, docker.filename);
+  try {
+    fs.statSync(dockerfile);
+    util.log('Overwriting existing Dockerfile');
+  }
+  catch (e) {
+  }
+
   var platform = lang ? platforms.find(lang) : platforms.detect(dir);
   if (!platform) return;
 
   var contents = platform.getDockerfile(dir);
   if (contents) {
     fs.writeFileSync(dockerfile, contents);
-    console.log(`Wrote Dockerfile (${platform.name})`);
+    util.log(`Wrote Dockerfile (${platform.name})`);
   }
   else {
-    console.log('Nothing to write');
+    util.log('Nothing to write');
   }
 }
