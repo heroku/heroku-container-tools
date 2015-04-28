@@ -13,6 +13,9 @@ module.exports = function(topic) {
     help: `help text for ${topic}:start`,
     run: function(context) {
       var startImageId = docker.ensureStartImage(context.cwd);
+      if (!startImageId) {
+	return;
+      }
       startImage(startImageId);
     }
   };
