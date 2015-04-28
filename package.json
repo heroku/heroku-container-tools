@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.0.3",
+    "dotenv": "^1.1.0",
     "heroku-cli-util": "^1.7.0",
     "heroku-client": "^1.9.1",
     "is-there": "^1.1.0",
