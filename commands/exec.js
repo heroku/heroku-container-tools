@@ -26,14 +26,18 @@ module.exports = function(topic) {
 function runCommand(imageId, cwd, args) {
   var envArgComponent = envutil.getFormattedEnvArgComponent(cwd);
   var command = args.join(' ');
-
-  if (os.platform() == 'win32') {
-    // this is due to how volumes are mounted by boot2docker/virtualbox
-    cwd = cwd.replace('C:\\', '/c/').replace(/\\/g, '/');
-  }
-
+  cwd = crossPlatformCwd(cwd);
   var execString = `docker run -p 3000:3000 -v "${cwd}:/app/src" -w /app/src --rm -it ${envArgComponent} ${imageId} ${command} || true`;
   child.execSync(execString, {
     stdio: [0, 1, 2]
   });
+}
+
+function crossPlatformCwd(cwd){
+    if (os.platform() == 'win32') {
+        // this is due to how volumes are mounted by boot2docker/virtualbox
+        // TODO: The user's home folder will likely be on 'C:', but we shouldn't assume that
+        cwd = cwd.replace('C:\\', '/c/').replace(/\\/g, '/');
+    }
+    return cwd;
 }
