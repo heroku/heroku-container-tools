@@ -2,7 +2,7 @@ var url = require('url');
 var child = require('child_process');
 var _ = require('lodash');
 
-module.exports = function(topic, docker) {
+module.exports = function(topic) {
   return {
     topic: topic,
     command: 'clean',
