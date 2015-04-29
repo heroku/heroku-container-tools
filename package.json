@@ -4,7 +4,9 @@
   "description": "Docker plugin for the Heroku CLI",
   "main": "index.js",
   "repository": "https://github.com/hunterloftis/docker-plugin",
-  "scripts": {},
+  "scripts": {
+    "test": "mocha"
+  },
   "keywords": [
     "heroku",
     "docker",
@@ -30,5 +32,9 @@
     "request-progress": "^0.3.1",
     "superagent": "^0.21.0",
     "yamljs": "^0.2.1"
+  },
+  "devDependencies": {
+    "fs-extra": "^0.18.2",
+    "uuid": "^2.0.1"
   }
 }
