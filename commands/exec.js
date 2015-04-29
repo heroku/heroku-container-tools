@@ -1,7 +1,6 @@
 var child = require('child_process');
 var fs = require('fs');
 var path = require('path');
-var os = require('os');
 var docker = require('../lib/docker');
 var directory = require('../lib/directory');
 
@@ -20,12 +19,3 @@ module.exports = function(topic) {
     }
   };
 };
-
-function crossPlatformCwd(cwd){
-    if (os.platform() == 'win32') {
-        // this is due to how volumes are mounted by boot2docker/virtualbox
-        var p = path.parse(cwd);
-        return "/" + p.root.split(':')[0].toLowerCase() + "/" + p.dir.substring(p.root.length).replace(/\\/g, '/') + '/' + p.base;
-    }
-    return cwd;
-}
