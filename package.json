@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/hunterloftis/docker-plugin",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --timeout 30000"
   },
   "keywords": [
     "heroku",

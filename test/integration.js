@@ -8,7 +8,7 @@ var cli = require('heroku-cli-util');
 var docker = require('../lib/docker');
 var init = require('../commands/init')('test');
 var exec = require('../commands/exec')('test');
-var start = require('../commands/start');
+var start = require('../commands/start')('test');
 var release = require('../commands/release');
 var clean = require('../commands/clean');
 
@@ -21,11 +21,15 @@ describe('basic integration', function() {
   });
 
   describe('init', function() {
-    cli.console.mock();
-    var result = init.run({ cwd: cwd, args: {} });
+
+    before(function(done) {
+      cli.console.mock();
+      this.result = init.run({ cwd: cwd, args: {} });
+      done();
+    });
 
     it('identifies a node app', function() {
-      assert.equal(result, 'node');
+      assert.equal(this.result, 'node');
     });
 
     it('creates a Dockerfile', function() {
@@ -35,12 +39,29 @@ describe('basic integration', function() {
   });
 
   describe('exec npm install', function() {
-    cli.console.mock();
-    var result = exec.run({ cwd: cwd, args: ['npm', 'install'] });
+
+    before(function(done) {
+      cli.console.mock();
+      exec.run({ cwd: cwd, args: ['npm', 'install'] });
+      done();
+    });
 
     it('creates node_modules', function() {
       var node_modules = path.join(cwd, 'node_modules');
       assert.ok(fse.existsSync(node_modules));
+    });
+  });
+
+  describe('start', function() {
+
+    before(function(done) {
+      cli.console.mock();
+      this.result = start.run({ cwd: cwd, args: [] }).toString().trim();
+      done();
+    });
+
+    it('runs the web process', function() {
+      assert.equal(this.result, 'web process');
     });
   });
 });
