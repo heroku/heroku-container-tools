@@ -30,7 +30,9 @@ module.exports = function(topic) {
       var startImageId = docker.ensureStartImage(context.cwd);
 
       console.log('\nstarting image...');
-      console.log('web process will be available at', colors.yellow.underline(getURL()));
+      if (procName === 'web') {
+	console.log('web process will be available at', colors.yellow.underline(getURL()));
+      }
       docker.runImage(startImageId, context.cwd, command, false);
     }
   };
