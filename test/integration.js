@@ -4,13 +4,13 @@ var os = require('os');
 var path = require('path');
 var uuid = require('uuid');
 var cli = require('heroku-cli-util');
+var child = require('child_process');
 
 var docker = require('../lib/docker');
 var init = require('../commands/init')('test');
 var exec = require('../commands/exec')('test');
 var start = require('../commands/start')('test');
-var release = require('../commands/release');
-var clean = require('../commands/clean');
+var clean = require('../commands/clean')('clean');
 
 describe('basic integration', function() {
   var cwd = createFixture('basic');
@@ -56,7 +56,7 @@ describe('basic integration', function() {
 
     before(function(done) {
       cli.console.mock();
-      this.result = start.run({ cwd: cwd, args: [] }).toString().trim();
+      this.result = start.run({ cwd: cwd, args: [] });
       done();
     });
 
@@ -64,13 +64,27 @@ describe('basic integration', function() {
       assert.equal(this.result, 'web process');
     });
   });
-});
 
-// init(context);
-// exec(context, 'node -v');
-// start(context);
-// release(context);
-// clean(context);
+  describe('clean', function() {
+
+    before(function(done) {
+      cli.console.mock();
+      this.initial = child.execSync('docker images').toString().trim().split('\n');
+      this.result = clean.run({ });
+      this.remaining = child.execSync('docker images').toString().trim().split('\n');
+      done();
+    });
+
+    it('should remove 2 images', function() {
+      assert.equal(this.result.length, 2);
+      assert.equal(this.remaining.join('').indexOf('heroku-docker'), -1);
+    });
+
+    it('should leave all other images', function() {
+      assert.equal(this.remaining.length, this.initial.length - this.result.length);
+    });
+  });
+});
 
 function createFixture(name) {
   var source = path.join(__dirname, 'fixtures', name);
