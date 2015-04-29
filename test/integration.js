@@ -75,8 +75,8 @@ describe('basic integration', function() {
       done();
     });
 
-    it('should remove 2 images', function() {
-      assert.equal(this.result.length, 2);
+    it('should remove at least 2 images', function() {
+      assert.ok(this.result.length >= 2);
       assert.equal(this.remaining.join('').indexOf('heroku-docker'), -1);
     });
 
