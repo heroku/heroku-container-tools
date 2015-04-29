@@ -24,8 +24,8 @@ module.exports = function(topic) {
 function crossPlatformCwd(cwd){
     if (os.platform() == 'win32') {
         // this is due to how volumes are mounted by boot2docker/virtualbox
-        // TODO: The user's home folder will likely be on 'C:', but we shouldn't assume that
-        cwd = cwd.replace('C:\\', '/c/').replace(/\\/g, '/');
+        var p = path.parse(cwd);
+        return "/" + p.root.split(':')[0].toLowerCase() + "/" + p.dir.substring(p.root.length).replace(/\\/g, '/') + '/' + p.base;
     }
     return cwd;
 }
