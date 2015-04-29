@@ -1,6 +1,7 @@
 var child = require('child_process');
 var fs = require('fs');
 var path = require('path');
+var os = require('os');
 var state = require('../lib/state');
 var docker = require('../lib/docker');
 var envutil = require('../lib/env-util');
@@ -25,7 +26,13 @@ module.exports = function(topic) {
 function runCommand(imageId, cwd, args) {
   var envArgComponent = envutil.getFormattedEnvArgComponent(cwd);
   var command = args.join(' ');
-  var execString = `docker run -p 3000:3000 -v ${cwd}:/app/src -w /app/src --rm -it ${envArgComponent} ${imageId} ${command} || true`;
+
+  if (os.platform() == 'win32') {
+    // this is due to how volumes are mounted by boot2docker/virtualbox
+    cwd = cwd.replace('C:\\', '/c/').replace(/\\/g, '/');
+  }
+
+  var execString = `docker run -p 3000:3000 -v "${cwd}:/app/src" -w /app/src --rm -it ${envArgComponent} ${imageId} ${command} || true`;
   child.execSync(execString, {
     stdio: [0, 1, 2]
   });
