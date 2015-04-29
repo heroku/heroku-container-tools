@@ -12,8 +12,8 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'start',
-    description: 'start docker app container',
-    help: 'Start local Docker app container',
+    description: 'start Docker app container',
+    help: 'Start local Docker app container running Procfile-defined process. Default is `web` Procfile entry.',
     variableArgs: true,
     run: function(context) {
       var procfile = directory.readProcfile(context.cwd);
