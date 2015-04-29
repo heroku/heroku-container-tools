@@ -4,22 +4,17 @@ var os = require('os');
 var fs = require('fs');
 var Heroku = require('heroku-client');
 var request = require('request');
-var state = require('../lib/state');
-var docker = require('../lib/docker');
 var agent = require('superagent');
 var util = require('heroku-cli-util');
-var yaml = require('yamljs');
-
-process.on('uncaughtException', function(err) {
-  console.log('err:', err.stack);
-});
+var directory = require('../lib/directory');
+var docker = require('../lib/docker');
 
 module.exports = function(topic) {
   return {
     topic: topic,
     command: 'release',
-    description: 'creates a slug tarball from the built image and releases it to your Heroku app',
-    help: `help text for ${topic}:release`,
+    description: 'create and release slug to app',
+    help: 'Create slug tarball from Docker image and release it to Heroku app',
     needsApp: true,
     needsAuth: true,
     run: release
@@ -29,12 +24,9 @@ module.exports = function(topic) {
 function release(context) {
   var heroku = new Heroku({ token: context.auth.password });
   var app = heroku.apps(context.app);
+  var procfile = directory.readProcfile(context.cwd);
 
-  var procfilePath = path.join(context.cwd, 'Procfile');
-  try {
-    fs.statSync(procfilePath);
-  }
-  catch (e) {
+  if (!procfile) {
     util.error('Procfile required. Aborting');
     return;
   }
@@ -51,6 +43,10 @@ function release(context) {
     try {
       var slugPath = os.tmpdir();
       var imageId = docker.ensureStartImage(context.cwd);
+      if (!imageId) {
+	return Promise.reject();
+      }
+
       var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git --exclude=.heroku ./app`, {
         encoding: 'utf8'
       }).trim();
@@ -66,9 +62,8 @@ function release(context) {
 
   function createRemoteSlug(slugPath) {
     console.log('creating remote slug...');
-    var procfileEntries = yaml.load(procfilePath);
     var slugInfo = app.slugs().create({
-      process_types: procfileEntries
+      process_types: procfile
     });
     return Promise.all([slugPath, slugInfo])
   }

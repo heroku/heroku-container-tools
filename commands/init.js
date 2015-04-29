@@ -3,7 +3,7 @@ var path = require('path');
 var child = require('child_process');
 var _ = require('lodash');
 var exists = require('is-there');
-var state = require('../lib/state');
+var util = require('heroku-cli-util');
 var docker = require('../lib/docker');
 var platforms = require('../platforms');
 
@@ -11,8 +11,8 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'init',
-    description: 'creates a Dockerfile for local development',
-    help: `help text for ${topic}:init`,
+    description: 'create Dockerfile for app',
+    help: 'Creates a Dockerfile matching the language and framework for the app',
     flags: [
       { name: 'template', description: 'create a Dockerfile based on a language template', hasValue: true }
     ],
@@ -25,14 +25,19 @@ module.exports = function(topic) {
 function createDockerfile(dir, lang) {
   var dockerfile = path.join(dir, docker.filename);
   var platform = lang ? platforms.find(lang) : platforms.detect(dir);
-  if (!platform) return;
+  if (!platform) {
+    util.error('No appropriate language or framework detected, overwrite with `--template`');
+    return;
+  }
 
   var contents = platform.getDockerfile(dir);
-  if (contents) {
-    fs.writeFileSync(dockerfile, contents);
-    console.log(`Wrote Dockerfile (${platform.name})`);
+
+  try {
+    fs.statSync(dockerfile);
+    util.log('Overwriting existing Dockerfile');
   }
-  else {
-    console.log('Nothing to write');
-  }
+  catch (e) {}
+
+  fs.writeFileSync(dockerfile, contents);
+  util.log(`Wrote Dockerfile (${platform.name})`);
 }
