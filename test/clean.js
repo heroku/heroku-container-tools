@@ -22,6 +22,12 @@ describe('docker:clean', function() {
     d.images.push('<none>                                                 <none>              2502c9bd278a        17 hours ago        1.277 GB');
     d.images.push('myproject_web                                          latest              07bd7423c264        2 weeks ago         1.415 GB');
     clean.run({});
+    it('removes the 2 heroku-docker images', function() {
+      assert.indexOf(d.removedImages, )
+    });
+    it('leaves the 2 other images', function() {
+
+    });
   });
   describe('with no running docker instance', function() {
 
