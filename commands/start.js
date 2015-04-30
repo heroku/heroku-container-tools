@@ -29,7 +29,7 @@ module.exports = function(topic) {
       }
       var startImageId = docker.ensureStartImage(context.cwd);
       if (!startImageId) return;
-      
+
       cli.log('\nstarting container...');
       if (procName === 'web') {
         cli.log('web process will be available at', colors.yellow.underline(getURL()));
@@ -40,7 +40,6 @@ module.exports = function(topic) {
 };
 
 function getURL() {
-  var dockerHost = process.env.DOCKER_HOST;
-  var host = (dockerHost == null) ? 'localhost' : url.parse(dockerHost).hostname;
+  var host = url.parse(process.env.DOCKER_HOST || 'tcp://localhost').hostname;
   return `http://${host}:3000/`;
 }
