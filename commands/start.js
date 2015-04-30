@@ -39,6 +39,7 @@ module.exports = function(topic) {
 };
 
 function getURL() {
-  var host = url.parse(process.env.DOCKER_HOST).hostname;
+  var dockerHost = process.env.DOCKER_HOST;
+  var host = (dockerHost == null) ? 'localhost' : url.parse(dockerHost).hostname;
   return `http://${host}:3000/`;
 }
