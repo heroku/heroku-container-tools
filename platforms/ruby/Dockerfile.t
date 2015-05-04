@@ -30,7 +30,7 @@ ONBUILD COPY Gemfile /app/src/
 ONBUILD COPY Gemfile.lock /app/src/
 
 ONBUILD USER root
-ONBUILD RUN chmod a+wr /app/src/Gemfile.lock # ensure user can modify the Gemfile.lock
+ONBUILD RUN chown app /app/src/Gemfile* # ensure user can modify the Gemfile.lock
 ONBUILD USER app
 
 ONBUILD RUN bundle install # TODO: desirable if --path parameter were passed
@@ -38,7 +38,7 @@ ONBUILD RUN bundle install # TODO: desirable if --path parameter were passed
 ONBUILD COPY . /app/src
 
 ONBUILD USER root
-ONBUILD RUN chmod a+wr /app/src/Gemfile.lock # ensure user can modify the Gemfile.lock
+ONBUILD RUN chown -R app /app
 ONBUILD USER app
 
 ONBUILD RUN mkdir -p /app/.profile.d
