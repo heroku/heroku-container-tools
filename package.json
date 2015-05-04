@@ -14,7 +14,7 @@
     "heroku-plugin"
   ],
   "author": "Hunter Loftis <hunter@hunterloftis.com>",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "chai": "^2.3.0",
     "colors": "^1.0.3",
