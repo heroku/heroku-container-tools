@@ -3,7 +3,7 @@
   "version": "0.0.16",
   "description": "Docker plugin for the Heroku CLI",
   "main": "index.js",
-  "repository": "https://github.com/hunterloftis/docker-plugin",
+  "repository": "https://github.com/heroku/heroku-docker",
   "scripts": {
     "test": "mocha --timeout 30000"
   },
@@ -14,7 +14,7 @@
     "heroku-plugin"
   ],
   "author": "Hunter Loftis <hunter@hunterloftis.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chai": "^2.3.0",
     "colors": "^1.0.3",
