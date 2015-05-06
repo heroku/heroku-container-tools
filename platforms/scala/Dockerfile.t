@@ -15,10 +15,10 @@ RUN curl -s http://lang-jvm.s3.amazonaws.com/jdk/openjdk1.8.0_40-cedar14.tar.gz 
 RUN echo "export JAVA_HOME=\"/app/heroku/jdk" > /app/.profile.d/jdk.sh
 RUN echo "export PATH=\"/app/heroku/jdk/bin:\$PATH" >> /app/.profile.d/jdk.sh
 
-ONBUILD COPY target /app/target
+ONBUILD COPY target /app/src/target
 
 ONBUILD USER root
-ONBUILD RUN chown -R app /app/target/
+ONBUILD RUN chown -R app /app/src/target
 ONBUILD USER app
 
 ONBUILD EXPOSE 3000
