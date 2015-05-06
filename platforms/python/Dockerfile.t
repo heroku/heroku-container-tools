@@ -28,7 +28,7 @@ WORKDIR /tmp/python-buildpack/bin
 WORKDIR /app/
 ONBUILD COPY . /app/
 
-ONBUILD RUN git clone https://github.com/heroku/heroku-buildpack-python.git /tmp/python-pack -b docker
+ONBUILD RUN git clone https://github.com/heroku/heroku-buildpack-python.git /tmp/python-pack
 ONBUILD RUN bash -l /tmp/python-pack/bin/compile /app /tmp/cache /app/.env
 
 ONBUILD COPY . /app/src/
