@@ -28,13 +28,8 @@ WORKDIR /tmp/python-buildpack/bin
 WORKDIR /app/
 ONBUILD COPY . /app/
 
-ONBUILD RUN git clone https://github.com/heroku/heroku-buildpack-python.git /tmp/python-pack --depth 1
+RUN git clone https://github.com/heroku/heroku-buildpack-python.git /tmp/python-pack --depth 1
 ONBUILD RUN bash -l /tmp/python-pack/bin/compile /app /tmp/cache /app/.env
 
 ONBUILD COPY . /app/src/
 ONBUILD EXPOSE 3000
-
-
-
-
-
