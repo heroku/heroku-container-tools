@@ -58,7 +58,6 @@ function release(context) {
   }
 
   function createRemoteSlug(slugPath) {
-    console.log('slugPath:', slugPath);
     cli.log('creating remote slug...');
     var slugInfo = app.slugs().create({
       process_types: procfile
