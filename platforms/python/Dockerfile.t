@@ -10,6 +10,7 @@ ENV PATH /app/.heroku/python/bin:/tmp/python-pack/bin:$PATH
 ENV STACK cedar-14
 ENV PYTHONHOME /app/.heroku/python
 ENV PYTHONPATH /app/
+ENV DOCKER_BUILD 1
 
 
 RUN mkdir -p /app/.heroku
