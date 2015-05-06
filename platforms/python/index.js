@@ -8,7 +8,6 @@ module.exports = {
   name: 'python',
   detect: function(dir) {
     if (exists.sync(path.resolve(dir, 'requirements.txt'))) return true;
-    if (exists.sync(path.resolve(dir, 'Gemfile.lock'))) return true;
   },
   getDockerfile: function(dir) {
     var templatePath = path.resolve(__dirname, 'Dockerfile.t');
