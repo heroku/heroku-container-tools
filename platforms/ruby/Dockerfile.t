@@ -2,7 +2,7 @@ FROM heroku/cedar:14
 
 RUN useradd -d /app -m app
 USER app
-WORKDIR /app
+WORKDIR /app/src
 
 ENV HOME /app
 ENV RUBY_ENGINE <%= ruby_engine %>
