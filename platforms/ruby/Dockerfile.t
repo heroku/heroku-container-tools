@@ -25,7 +25,6 @@ RUN mkdir -p /app/heroku/node
 RUN curl -s https://s3pository.heroku.com/node/v$NODE_ENGINE/node-v$NODE_ENGINE-linux-x64.tar.gz | tar --strip-components=1 -xz -C /app/heroku/node
 ENV PATH /app/heroku/node/bin:$PATH
 
-ONBUILD WORKDIR /app/src
 ONBUILD COPY Gemfile /app/src/
 ONBUILD COPY Gemfile.lock /app/src/
 
