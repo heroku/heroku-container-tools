@@ -2,6 +2,7 @@ FROM heroku/cedar:14
 
 RUN useradd -d /app -m app
 USER app
+RUN mkdir -p /app/src
 WORKDIR /app/src
 
 ENV HOME /app
