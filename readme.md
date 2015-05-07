@@ -18,6 +18,6 @@ See the following Dev Center guides for details on how to user the plugin:
 
 `npm test`
 
-- Assumes that `node` supports [Template strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/template_strings). Currently it's supported by io.js (and not by node.js).
+- Requires io.js
 - Assumes that `docker` is accessible
 - Assumes that it's being run in a directory that the docker host (like boot2docker) can mount
