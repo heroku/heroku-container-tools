@@ -4,6 +4,7 @@ var path = require('path');
 var docker = require('../lib/docker');
 var directory = require('../lib/directory');
 var safely = require('../lib/safely');
+var platforms = require('../platforms');
 
 module.exports = function(topic) {
   return {
@@ -20,5 +21,6 @@ function exec(context) {
   var execImageId = docker.ensureExecImage(context.cwd);
   if (!execImageId) throw new Error('Unable to created image for exec');
   var command = context.args.join(' ');
-  docker.runImage(execImageId, context.cwd, command, true);
+  var platform = platforms.detect(context.cwd);
+  docker.runImage(execImageId, context.cwd, command, platform.mounts(context.cwd));
 }
