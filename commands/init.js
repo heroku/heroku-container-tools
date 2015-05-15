@@ -10,8 +10,6 @@ var safely = require('../lib/safely');
 var directory = require('../lib/directory');
 var YAML = require('yamljs');
 
-const COMPOSE_NAME = 'docker-compose.yml'; // TODO: consider renaming to heroku-compose.yml
-
 module.exports = function(topic) {
   return {
     topic: topic,
@@ -57,15 +55,15 @@ function createDockerCompose(dir) {
   var procfile = directory.readProcfile(dir);
   if (!procfile) throw new Error('Procfile required. Aborting');
 
-  var composeFile = path.join(dir, COMPOSE_NAME);
+  var composeFile = path.join(dir, docker.composeFilename);
   var links = []; //['postgres', 'redis'];
   var port = 3000;
   var envFile = undefined; // '.env'
-  var processes = _.mapValues(procfile, toComposeProcess);
+  var processes = addMount(_.mapValues(procfile, toComposeProcess));
   var contents = YAML.stringify(processes, 4, 2);
 
   fs.writeFileSync(composeFile, contents, { encoding: 'utf8' });
-  util.log(`Wrote docker-compose file (${ COMPOSE_NAME })`);
+  util.log(`Wrote docker-compose file (${ docker.composeFilename })`);
 
   function toComposeProcess(command, procName, obj) {
     var proc = {
@@ -79,5 +77,14 @@ function createDockerCompose(dir) {
     if (envFile) proc.env_file = envFile;
     port++;
     return proc;
+  }
+
+  function addMount(obj) {
+    obj.mount = {
+      build: '.',
+      command: 'bash',
+      volumes: [ `.:${ docker.userDir }`]
+    };
+    return obj;
   }
 }

@@ -9,21 +9,21 @@ ENV HEROKU /app/heroku/
 # $PROFILE is a magic directory for Heroku
 ENV PROFILE /app/.profile.d/
 
-# $ONSTART is kept out of /app so it won't be duplicated on Heroku
+# $INIT is kept out of /app so it won't be duplicated on Heroku
 # Heroku already has a mechanism for running .profile.d scripts,
 # so this is just for local parity
-ENV ONSTART /usr/bin/onstart
+ENV INIT /usr/bin/init
 
 # Internally, we arbitrarily use port 3000
 ENV PORT 3000
 
 RUN mkdir -p $HOME $HEROKU $PROFILE
 
-RUN echo "#!/bin/bash" > $ONSTART
-RUN echo "cd $HOME" >> $ONSTART
-RUN echo "for SCRIPT in $PROFILE/*; do source \$SCRIPT; done" >> $ONSTART
-RUN echo "exec \$*" >> $ONSTART
-RUN chmod +x $ONSTART
+RUN echo "#!/bin/bash" > $INIT
+RUN echo "cd $HOME" >> $INIT
+RUN echo "for SCRIPT in $PROFILE/*; do source \$SCRIPT; done" >> $INIT
+RUN echo "exec \$*" >> $INIT
+RUN chmod +x $INIT
 
 WORKDIR $HOME
 
@@ -31,8 +31,7 @@ WORKDIR $HOME
 COPY . /app/user/
 
 <%= platforms %>
-RUN chmod +x $HEROKU/*
 
 # Is there a way to use the ENV here?
-ENTRYPOINT ["/usr/bin/onstart"]
+ENTRYPOINT ["/usr/bin/init"]
 EXPOSE 3000
