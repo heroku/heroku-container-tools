@@ -16,6 +16,7 @@
   "author": "Hunter Loftis <hunter@hunterloftis.com>",
   "license": "ISC",
   "dependencies": {
+    "camelcase": "1.0.2",
     "chai": "^2.3.0",
     "colors": "^1.0.3",
     "dotenv": "^1.1.0",

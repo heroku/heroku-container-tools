@@ -9,6 +9,12 @@ var platforms = require('../platforms');
 var safely = require('../lib/safely');
 var directory = require('../lib/directory');
 var YAML = require('yamljs');
+var camelcase = require('camelcase');
+
+const ADDON_IMAGES = {
+  'herokuRedis': 'redis',
+  'herokuPostgresql': 'postgres'
+};
 
 module.exports = function(topic) {
   return {
@@ -33,7 +39,9 @@ function createDockerfile(dir, lang) {
   var appJson = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
   var platforms = _.map(appJson.platforms, getDockerfileContents);
   var template = _.template(fs.readFileSync(path.join(__dirname, '../templates/Dockerfile.t')))
-  var contents = template({ platforms: platforms.join('\n') });
+  var contents = template({
+    platforms: platforms.join('\n')
+  });
 
   try {
     fs.statSync(dockerfile);
@@ -55,17 +63,24 @@ function createDockerCompose(dir) {
   var procfile = directory.readProcfile(dir);
   if (!procfile) throw new Error('Procfile required. Aborting');
 
+  var appJson = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
   var composeFile = path.join(dir, docker.composeFilename);
-  var links = []; //['postgres', 'redis'];
   var port = 3000;
   var envFile = undefined; // '.env'
-  var processes = addMount(_.mapValues(procfile, toComposeProcess));
-  var contents = YAML.stringify(processes, 4, 2);
+  var links = _.map(appJson.addons || [], addonToLink);
+  var processes = _.mapValues(procfile, processToService);
+  var addons = _.zipObject(links, _.map(links, addonToService));
+  var services = _.extend({}, processes, addons);
+  var contents = YAML.stringify(services, 4, 2);
 
   fs.writeFileSync(composeFile, contents, { encoding: 'utf8' });
   util.log(`Wrote docker-compose file (${ docker.composeFilename })`);
 
-  function toComposeProcess(command, procName, obj) {
+  function addonToLink(addon) {
+    return camelcase(addon);
+  }
+
+  function processToService(command, procName, obj) {
     var proc = {
       build: '.',
       // dockerfile: docker.filename, (TODO: add this once docker-compose 1.3.0 is released)
@@ -79,12 +94,9 @@ function createDockerCompose(dir) {
     return proc;
   }
 
-  function addMount(obj) {
-    obj.mount = {
-      build: '.',
-      command: 'bash',
-      volumes: [ `.:${ docker.userDir }`]
+  function addonToService(addon) {
+    return {
+      image: ADDON_IMAGES[addon]
     };
-    return obj;
   }
 }

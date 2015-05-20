@@ -17,6 +17,9 @@ ENV INIT /usr/bin/init
 # Internally, we arbitrarily use port 3000
 ENV PORT 3000
 
+# Hack to map addons
+ENV REDIS_URL="redis://redis:6379"
+
 RUN mkdir -p $HOME $HEROKU $PROFILE
 
 RUN echo "#!/bin/bash" > $INIT
@@ -31,6 +34,7 @@ WORKDIR $HOME
 COPY . /app/user/
 
 <%= platforms %>
+RUN chmod +x $PROFILE/*
 
 # Is there a way to use the ENV here?
 ENTRYPOINT ["/usr/bin/init"]
