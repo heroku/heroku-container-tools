@@ -41,3 +41,9 @@ Wrote docker-compose.yml
 ```
 $ docker-compose up
 ```
+
+### 5. Open your web service
+
+```
+$ open "http://$(boot2docker ip)"
+```
