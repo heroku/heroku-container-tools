@@ -51,7 +51,7 @@ function createDockerfile(dir) {
   catch (e) {}
 
   fs.writeFileSync(dockerfile, contents, { encoding: 'utf8' });
-  util.log(`Wrote Dockerfile (${ docker.filename })`);
+  util.log(`Wrote ${ docker.filename }`);
 }
 
 function createDockerCompose(dir) {
@@ -87,7 +87,7 @@ function createDockerCompose(dir) {
   var composeContents = YAML.stringify(services, 4, 2);
 
   fs.writeFileSync(composeFile, composeContents, { encoding: 'utf8' });
-  util.log(`Wrote docker-compose file (${ docker.composeFilename })`);
+  util.log(`Wrote ${ docker.composeFilename }`);
 
   function addonsToEnv(env, addon) {
     _.extend(env, ADDONS[addon].env);
