@@ -60,7 +60,7 @@ function createDockerCompose(dir) {
   if (!procfile) throw new Error('Procfile required. Aborting');
 
   try {
-    fs.statSync(dockerfile);
+    fs.statSync(composeFile);
     util.log(`Overwriting existing '${ docker.composeFilename }'`);
   }
   catch (e) {}

@@ -1,7 +1,13 @@
 # Compose Test
 
+Trying out heroku-docker with docker-compose
+
+## Installation
+
 ```
-$ heroku plugins:install heroku-docker
+$ git clone https://github.com/heroku/heroku-docker.git
+$ cd heroku-docker
+$ heroku plugins:link
 ```
 
 ## Workflow
