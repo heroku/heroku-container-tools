@@ -17,10 +17,6 @@ module.exports = {
       }
     },
 
-    require('./commands/init')(TOPIC),
-    require('./commands/exec')(TOPIC),
-    require('./commands/start')(TOPIC),
-    require('./commands/release')(TOPIC),
-    require('./commands/clean')(TOPIC)
+    require('./commands/init')(TOPIC)
   ]
 };

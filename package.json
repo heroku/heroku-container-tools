@@ -16,6 +16,7 @@
   "author": "Hunter Loftis <hunter@hunterloftis.com>",
   "license": "ISC",
   "dependencies": {
+    "camelcase": "1.0.2",
     "chai": "^2.3.0",
     "colors": "^1.0.3",
     "dotenv": "^1.1.0",
@@ -33,7 +34,7 @@
     "request": "2.53.0",
     "request-progress": "^0.3.1",
     "superagent": "^0.21.0",
-    "yamljs": "^0.2.1"
+    "yamljs": "0.2.2"
   },
   "devDependencies": {
     "fs-extra": "^0.18.2",
