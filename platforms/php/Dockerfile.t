@@ -8,8 +8,6 @@ ENV HOME /app
 ENV PORT 3000
 ENV PATH /app/.heroku/php/bin:/app/.heroku/php/sbin:/tmp/php-pack/bin:$PATH
 ENV STACK cedar-14
-ENV PYTHONHOME /app/.heroku/python
-ENV PYTHONPATH /app/
 ENV DOCKER_BUILD 1
 
 
@@ -31,5 +29,4 @@ ONBUILD COPY . /app/
 RUN git clone https://github.com/heroku/heroku-buildpack-php.git /tmp/php-pack --depth 1
 ONBUILD RUN bash -l /tmp/php-pack/bin/compile /app /tmp/cache /app/.env
 
-ONBUILD COPY . /app/src/
 ONBUILD EXPOSE 3000
