@@ -42,7 +42,7 @@ function init(context) {
 function createDockerfile(dir) {
   var dockerfile = path.join(dir, docker.filename);
   var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
-  var contents = `FROM ${ appJSON.image }`;
+  var contents = `FROM ${ appJSON.image }\n`;
 
   try {
     fs.statSync(dockerfile);
@@ -75,7 +75,7 @@ function createDockerCompose(dir) {
   var envs = _.reduce(appJSON.addons, addonsToEnv, {});
 
   // compile a list of process services
-  var processes = _.mapValues(procfile, processToService(links, envs), { port: 2999 });
+  var processes = _.mapValues(procfile, processToService(links, envs));
 
   // compile a list of addon services
   var addons = _.zipObject(links, _.map(appJSON.addons, addonToService));
@@ -95,14 +95,14 @@ function createDockerCompose(dir) {
   }
 
   function processToService(links, envs) {
-    return function(command) {
-      this.port++;
+    return function(command, procName) {
+      var port = procName === 'web' ? '3000' : undefined;
       return _.pick({
         build: '.',
         command: command,
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
-        environment: _.extend({ PORT: this.port }, envs),
-        ports: [`${ this.port }:${ this.port }`],
+        environment: _.extend(port ? { PORT: port } : {}, envs),
+        ports: port ? [`${ port }:${ port }`] : undefined,
         links: links.length ? links : undefined,
         envFile: undefined                              // TODO: detect an envFile?
       }, _.identity);
