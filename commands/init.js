@@ -15,11 +15,11 @@ var directory = require('../lib/directory');
 const ADDONS = {
   'heroku-redis': {
     image: 'redis',
-    env: { 'REDIS_URL': 'redis://redis:6379' }
+    env: { 'REDIS_URL': 'redis://herokuRedis:6379' }
   },
   'heroku-postgresql': {
     image: 'postgres',
-    env: { 'DATABASE_URL': 'postgres://postgres:6212' }
+    env: { 'DATABASE_URL': 'postgres://postgres:@herokuPostgresql:5432/dev' }
   }
 };
 
