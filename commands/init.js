@@ -19,7 +19,7 @@ const ADDONS = {
   },
   'heroku-postgresql': {
     image: 'postgres',
-    env: { 'DATABASE_URL': 'postgres://postgres:@herokuPostgresql:5432/dev' }
+    env: { 'DATABASE_URL': 'postgres://postgres:@herokuPostgresql:5432/postgres' }
   }
 };
 
@@ -35,6 +35,9 @@ module.exports = function(topic) {
 };
 
 function init(context) {
+  var procfile = directory.readProcfile(context.cwd);
+  if (!procfile) throw new Error('Procfile required. Aborting');
+
   createDockerfile(context.cwd);
   createDockerCompose(context.cwd);
 }
@@ -57,7 +60,6 @@ function createDockerfile(dir) {
 function createDockerCompose(dir) {
   var composeFile = path.join(dir, docker.composeFilename);
   var procfile = directory.readProcfile(dir);
-  if (!procfile) throw new Error('Procfile required. Aborting');
 
   try {
     fs.statSync(composeFile);
@@ -76,6 +78,12 @@ function createDockerCompose(dir) {
 
   // compile a list of process services
   var processes = _.mapValues(procfile, processToService(links, envs));
+
+  // build the 'shell' process for persistent changes, one-off tasks
+  processes.shell = _.extend(_.cloneDeep(processes.web), {
+    command: 'bash',
+    volumes: ['.:/app/user']
+  });
 
   // compile a list of addon services
   var addons = _.zipObject(links, _.map(appJSON.addons, addonToService));
