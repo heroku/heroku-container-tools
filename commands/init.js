@@ -82,11 +82,9 @@ function createDockerCompose(dir) {
   // build the 'shell' process for persistent changes, one-off tasks
   processes.shell = _.extend(_.cloneDeep(processes.web), {
     command: 'bash',
-    volumes: ['.:/app/user'],
-    ports: [ '3001:3001' ]
+    volumes: ['.:/app/user']
   });
-  processes.shell.environment.PORT = '3001';
-  
+
   // compile a list of addon services
   var addons = _.zipObject(links, _.map(appJSON.addons, addonToService));
 
