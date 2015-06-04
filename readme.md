@@ -2,7 +2,7 @@
 
 Trying out heroku-docker with docker-compose
 
-You can also just clone [a simple example](https://github.com/hunterloftis/compose-test).
+You can also just clone [a simple example](https://github.com/hunterloftis/asciify).
 
 ## Installation
 
