@@ -48,11 +48,17 @@ Wrote docker-compose.yml
 ### 4. Start your local cloud
 
 ```
-$ docker-compose up
+$ docker-compose up web worker
 ```
 
 ### 5. Open your web service
 
 ```
 $ open "http://$(boot2docker ip)"
+```
+
+### 6. Edit with a normal local workflow
+
+```
+$ docker-compose run --service-ports shell
 ```
