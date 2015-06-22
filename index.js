@@ -1,22 +1,19 @@
 var pkg = require('./package.json');
 
 const TOPIC = 'docker';
-const DESCRIPTION = 'Use Docker to build and deploy Heroku apps';
 
 module.exports = {
-  topics: [{
-    name: TOPIC,
-    description: DESCRIPTION
-  }],
   commands: [{
       topic: TOPIC,
-      description: DESCRIPTION,
-      help: DESCRIPTION,
-      run: function(context) {
-        console.log(pkg.version);
-      }
+      description: pkg.description,
+      help: pkg.description,
+      run: showVersion
     },
 
     require('./commands/init')(TOPIC)
   ]
 };
+
+function showVersion(context) {
+  console.log(pkg.version);
+}

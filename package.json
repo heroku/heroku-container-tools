@@ -1,7 +1,7 @@
 {
   "name": "heroku-docker",
   "version": "0.0.23",
-  "description": "Docker plugin for the Heroku CLI",
+  "description": "Use Docker to build and deploy Heroku apps",
   "main": "index.js",
   "repository": "https://github.com/heroku/heroku-docker",
   "scripts": {

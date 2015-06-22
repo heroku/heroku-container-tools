@@ -4,7 +4,7 @@ var child = require('child_process');
 
 var _ = require('lodash');
 var exists = require('is-there');
-var util = require('heroku-cli-util');
+var cli = require('heroku-cli-util');
 var YAML = require('yamljs');
 var camelcase = require('camelcase');
 
@@ -49,12 +49,12 @@ function createDockerfile(dir) {
 
   try {
     fs.statSync(dockerfile);
-    util.log(`Overwriting existing '${ docker.filename }'`);
+    cli.log(`Overwriting existing '${ docker.filename }'`);
   }
   catch (e) {}
 
   fs.writeFileSync(dockerfile, contents, { encoding: 'utf8' });
-  util.log(`Wrote ${ docker.filename }`);
+  cli.log(`Wrote ${ docker.filename }`);
 }
 
 function createDockerCompose(dir) {
@@ -63,7 +63,7 @@ function createDockerCompose(dir) {
 
   try {
     fs.statSync(composeFile);
-    util.log(`Overwriting existing '${ docker.composeFilename }'`);
+    cli.log(`Overwriting existing '${ docker.composeFilename }'`);
   }
   catch (e) {}
 
@@ -95,7 +95,7 @@ function createDockerCompose(dir) {
   var composeContents = YAML.stringify(services, 4, 2);
 
   fs.writeFileSync(composeFile, composeContents, { encoding: 'utf8' });
-  util.log(`Wrote ${ docker.composeFilename }`);
+  cli.log(`Wrote ${ docker.composeFilename }`);
 
   function addonsToEnv(env, addon) {
     _.extend(env, ADDONS[addon].env);
