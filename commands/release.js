@@ -24,7 +24,6 @@ module.exports = function(topic) {
 
 function release(context) {
   var procfile = directory.readProcfile(context.cwd);
-
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   request = context.request || request;
@@ -39,25 +38,43 @@ function release(context) {
 
   function createLocalSlug() {
     cli.log('creating local slug...');
-    try {
-      var slugPath = os.tmpdir();
-      var imageId = docker.ensureStartImage(context.cwd);
-      if (!imageId) return Promise.reject(new Error('Unable to find a start image'));
 
-      var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git ./app`, {
-        encoding: 'utf8'
-      }).trim();
-      child.execSync(`docker wait ${containerId}`);
-      child.execSync(`docker cp ${containerId}:/tmp/slug.tgz ${slugPath}`);
-      child.execSync(`docker rm -f ${containerId}`);
-      return Promise.resolve(path.join(slugPath, 'slug.tgz'));
-    }
-    catch (e) {
-      return Promise.reject(e);
-    }
+    return new Promise(function(resolve, reject) {
+      var slugPath = os.tmpdir();
+      var output = '';
+      var build = child.spawn('docker-compose', ['build', 'web']);
+
+      build.stdout.pipe(process.stdout);
+      build.stderr.pipe(process.stderr);
+      build.stdout.on('data', saveOutput);
+      build.on('exit', onBuildExit);
+
+      function saveOutput(data) {
+        output += data;
+      }
+
+      function onBuildExit(code) {
+        if (code !== 0) throw new Error('Build failed');
+        var tokens = output.match(/\S+/g);
+        var imageId = tokens[tokens.length - 1];
+        tar(imageId);
+      }
+
+      function tar(imageId) {
+        cli.log('extracting slug from container...');
+        var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git ./app`, {
+          encoding: 'utf8'
+        }).trim();
+        child.execSync(`docker wait ${containerId}`);
+        child.execSync(`docker cp ${containerId}:/tmp/slug.tgz ${slugPath}`);
+        child.execSync(`docker rm -f ${containerId}`);
+        resolve(path.join(slugPath, 'slug.tgz'));
+      }
+    });
   }
 
   function createRemoteSlug(slugPath) {
+    console.log('path:', slugPath);
     cli.log('creating remote slug...');
     var slugInfo = app.slugs().create({
       process_types: procfile

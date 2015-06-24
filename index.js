@@ -1,19 +1,9 @@
 var pkg = require('./package.json');
 
-const TOPIC = 'docker';
-
 module.exports = {
-  commands: [{
-      topic: TOPIC,
-      description: pkg.description,
-      help: pkg.description,
-      run: showVersion
-    },
-
-    require('./commands/init')(TOPIC)
+  commands: [
+    require('./commands/index')(pkg),
+    require('./commands/init')(pkg.topic),
+    require('./commands/release')(pkg.topic)
   ]
 };
-
-function showVersion(context) {
-  console.log(pkg.version);
-}
