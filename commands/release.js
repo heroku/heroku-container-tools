@@ -6,6 +6,7 @@ var Heroku = require('heroku-client');
 var request = require('request');
 var agent = require('superagent');
 var cli = require('heroku-cli-util');
+var _ = require('lodash');
 var directory = require('../lib/directory');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
@@ -24,6 +25,7 @@ module.exports = function(topic) {
 
 function release(context) {
   var procfile = directory.readProcfile(context.cwd);
+  var modifiedProc = _.mapValues(procfile, addUser);
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   request = context.request || request;
@@ -35,6 +37,10 @@ function release(context) {
     .then(createRemoteSlug)
     .then(uploadSlug)
     .then(releaseSlug);
+
+  function addUser(path) {
+    return `user/${ path }`;
+  }
 
   function createLocalSlug() {
     cli.log('creating local slug...');
@@ -76,8 +82,9 @@ function release(context) {
   function createRemoteSlug(slugPath) {
     console.log('path:', slugPath);
     cli.log('creating remote slug...');
+    cli.log('remote process types:', modifiedProc);
     var slugInfo = app.slugs().create({
-      process_types: procfile
+      process_types: modifiedProc
     });
     return Promise.all([slugPath, slugInfo])
   }
