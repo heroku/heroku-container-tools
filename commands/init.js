@@ -104,7 +104,7 @@ function createDockerCompose(dir) {
 
   function processToService(links, envs) {
     return function(command, procName) {
-      var port = procName === 'web' ? '3000' : undefined;
+      var port = procName === 'web' ? docker.port : undefined;
       return _.pick({
         build: '.',
         command: command,
