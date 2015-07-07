@@ -39,7 +39,8 @@ function release(context) {
     .then(releaseSlug);
 
   function addUser(path) {
-    return `user/${ path }`;
+    return path;
+    //return `user/${ path }`; // TODO: figure out how to allow both pathless procs (python foo) and user bins (myapp/bin/www)
   }
 
   function createLocalSlug() {
