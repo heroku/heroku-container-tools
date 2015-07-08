@@ -25,7 +25,7 @@ module.exports = function(topic) {
 
 function release(context) {
   var procfile = directory.readProcfile(context.cwd);
-  var modifiedProc = _.mapValues(procfile, addUser);
+  var modifiedProc = _.mapValues(procfile, prependUser);
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   request = context.request || request;
@@ -38,9 +38,8 @@ function release(context) {
     .then(uploadSlug)
     .then(releaseSlug);
 
-  function addUser(path) {
-    return path;
-    //return `user/${ path }`; // TODO: figure out how to allow both pathless procs (python foo) and user bins (myapp/bin/www)
+  function prependUser(cmd) {
+    return `cd user && ${ cmd }`
   }
 
   function createLocalSlug() {
