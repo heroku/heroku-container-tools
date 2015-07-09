@@ -105,16 +105,26 @@ function createDockerCompose(dir) {
   function processToService(links, envs) {
     return function(command, procName) {
       var port = procName === 'web' ? docker.port : undefined;
+      var allEnvs = _.extend(port ? { PORT: port } : {}, envs)
       return _.pick({
         build: '.',
-        command: command,
+        command: replaceEnv(command, allEnvs),
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
-        environment: _.extend(port ? { PORT: port } : {}, envs),
+        environment: allEnvs,
         ports: port ? [`${ port }:${ port }`] : undefined,
         links: links.length ? links : undefined,
         envFile: undefined                              // TODO: detect an envFile?
       }, _.identity);
     };
+  }
+
+  function replaceEnv(command, envs) {
+    var commandWithEnv = command;
+    Object.keys(envs).forEach(function (key) {
+      commandWithEnv = commandWithEnv.replace(`\$${key}`, envs[key])
+      commandWithEnv = commandWithEnv.replace(`\${${key}}`, envs[key])
+    })
+    return commandWithEnv;
   }
 
   function addonToService(addon) {
