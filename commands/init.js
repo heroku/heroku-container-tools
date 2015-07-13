@@ -12,16 +12,7 @@ var docker = require('../lib/docker');
 var safely = require('../lib/safely');
 var directory = require('../lib/directory');
 
-const ADDONS = {
-  'heroku-redis': {
-    image: 'redis',
-    env: { 'REDIS_URL': 'redis://herokuRedis:6379' }
-  },
-  'heroku-postgresql': {
-    image: 'postgres',
-    env: { 'DATABASE_URL': 'postgres://postgres:@herokuPostgresql:5432/postgres' }
-  }
-};
+const ADDONS = require('../lib/addons');
 
 module.exports = function(topic) {
   return {

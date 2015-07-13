@@ -33,6 +33,9 @@ function release(context) {
   if (!procfile) throw new Error('Procfile required. Aborting');
 
   return app.info()
+    .then(readRemoteAddons)
+    .then(compareLocalAddons)
+    .then(addMissingAddons)
     .then(createLocalSlug)
     .then(createRemoteSlug)
     .then(uploadSlug)
@@ -43,8 +46,41 @@ function release(context) {
     return `cd user && ${ cmd }`
   }
 
+  function readRemoteAddons() {
+    return app.addons().list();
+  }
+
+  function compareLocalAddons(remoteAddons) {
+    var remoteNames = remoteAddons.map(addonToName);
+    var appJSONLocation = path.join(context.cwd, 'app.json');
+    var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+    var localNames = appJSON.addons;
+    var missingAddons = _.difference(localNames, remoteNames);
+
+    console.log('Remote addons:', remoteNames);
+    console.log('Local addons:', localNames);
+    console.log('Missing addons:', missingAddons);
+
+    return Promise.resolve(missingAddons);
+
+    function addonToName(addon) {
+      return addon.addon_service.name;
+    }
+  }
+
+  function addMissingAddons(addons) {
+    return Promise.all(addons.map(createAddon));
+
+    function createAddon(name) {
+      console.log(`Provisioning ${ name }...`)
+      return app.addons().create({
+        plan: name
+      });
+    }
+  }
+
   function createLocalSlug() {
-    cli.log('creating local slug...');
+    cli.log('Creating local slug...');
 
     return new Promise(function(resolve, reject) {
       var slugPath = os.tmpdir();
