@@ -11,6 +11,8 @@ var directory = require('../lib/directory');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
 
+const ADDONS = require('../lib/addons');
+
 module.exports = function(topic) {
   return {
     topic: topic,
