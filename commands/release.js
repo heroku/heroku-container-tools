@@ -53,20 +53,25 @@ function release(context) {
   }
 
   function compareLocalAddons(remoteAddons) {
-    var remoteNames = remoteAddons.map(addonToName);
+    var remoteNames = _.map(remoteAddons, getServiceName);
     var appJSONLocation = path.join(context.cwd, 'app.json');
     var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
     var localNames = appJSON.addons;
-    var missingAddons = _.difference(localNames, remoteNames);
+    var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
 
-    console.log('Remote addons:', remoteNames);
-    console.log('Local addons:', localNames);
-    console.log('Missing addons:', missingAddons);
+    console.log(`Remote addons: ${ remoteNames.join(', ')} (${ remoteNames.length })`);
+    console.log(`Local addons: ${ localNames.join(', ') } (${ localNames.length })`);
+    console.log(`Missing addons: ${ missingAddons.join(', ') } (${ missingAddons.length })`);
 
     return Promise.resolve(missingAddons);
 
-    function addonToName(addon) {
+    function getServiceName(addon) {
       return addon.addon_service.name;
+    }
+
+    function isMissingFrom(list, addon) {
+      var name = addon.split(':')[0];
+      return list.indexOf(name) === -1;
     }
   }
 

@@ -62,23 +62,29 @@ function createDockerCompose(dir) {
   // read app.json to get the app's specification
   var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
 
-  // compile a list of addon links
-  var links = _.map(appJSON.addons || [], camelcase);
+  // get the base addon name, ignoring plan types
+  var addonNames = _.map(appJSON.addons, nameWithoutPlan);
 
-  // create environment variables to link the addons
-  var envs = _.reduce(appJSON.addons, addonsToEnv, {});
+  // process only the addons that we have mappings for
+  var mappedAddons = _.filter(addonNames, _.has.bind(this, ADDONS));
 
-  // compile a list of process services
+  // hyphens are not valid in link names for docker-compose
+  var links = _.map(mappedAddons || [], camelcase);
+
+  // reduce all addon env vars into a single object
+  var envs = _.reduce(mappedAddons, reduceEnv, {});
+
+  // compile a list of process types from the procfile
   var processes = _.mapValues(procfile, processToService(links, envs));
 
-  // build the 'shell' process for persistent changes, one-off tasks
+  // add a 'shell' process for persistent changes, one-off tasks
   processes.shell = _.extend(_.cloneDeep(processes.web), {
     command: 'bash',
     volumes: ['.:/app/user']
   });
 
-  // compile a list of addon services
-  var addons = _.zipObject(links, _.map(appJSON.addons, addonToService));
+  // zip all the addons into an object
+  var addons = _.zipObject(links, _.map(mappedAddons, addonToService));
 
   // combine processes and addons into a list of all services
   var services = _.extend({}, processes, addons);
@@ -89,7 +95,11 @@ function createDockerCompose(dir) {
   fs.writeFileSync(composeFile, composeContents, { encoding: 'utf8' });
   cli.log(`Wrote ${ docker.composeFilename }`);
 
-  function addonsToEnv(env, addon) {
+  function nameWithoutPlan(addon) {
+    return addon.split(':')[0];
+  }
+
+  function reduceEnv(env, addon) {
     _.extend(env, ADDONS[addon].env);
     return env;
   }
