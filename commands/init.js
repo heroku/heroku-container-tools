@@ -52,6 +52,8 @@ function createDockerfile(dir) {
 function createDockerCompose(dir) {
   var composeFile = path.join(dir, docker.composeFilename);
   var procfile = directory.readProcfile(dir);
+  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
+  var mountDir = appJSON.mount_dir || '';
 
   try {
     fs.statSync(composeFile);
@@ -80,7 +82,7 @@ function createDockerCompose(dir) {
   // add a 'shell' process for persistent changes, one-off tasks
   processes.shell = _.extend(_.cloneDeep(processes.web), {
     command: 'bash',
-    volumes: ['.:/app/user']
+    volumes: ['.:' + path.join('/app/user',mountDir)]
   });
 
   // zip all the addons into an object
