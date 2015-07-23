@@ -115,7 +115,7 @@ function release(context) {
 
       function tar(imageId) {
         cli.log('extracting slug from container...');
-        var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git ./app`, {
+        var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git --exclude=.cache --exclude=.buildpack ./app`, {
           encoding: 'utf8'
         }).trim();
         child.execSync(`docker wait ${containerId}`);
