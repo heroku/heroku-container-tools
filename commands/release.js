@@ -27,7 +27,8 @@ module.exports = function(topic) {
 
 function release(context) {
   var procfile = directory.readProcfile(context.cwd);
-  var modifiedProc = _.mapValues(procfile, prependUser);
+  var mountDir = directory.determineMountDir(context.cwd);
+  var modifiedProc = _.mapValues(procfile, prependMountDir(mountDir));
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   request = context.request || request;
@@ -44,8 +45,10 @@ function release(context) {
     .then(releaseSlug)
     .then(showMessage);
 
-  function prependUser(cmd) {
-    return `cd user && ${ cmd }`
+  function prependMountDir(mountDir) {
+    return function(cmd) {
+      return `cd ${ mountDir } && ${ cmd }`
+    }
   }
 
   function readRemoteAddons() {
