@@ -12,16 +12,7 @@ var docker = require('../lib/docker');
 var safely = require('../lib/safely');
 var directory = require('../lib/directory');
 
-const ADDONS = {
-  'heroku-redis': {
-    image: 'redis',
-    env: { 'REDIS_URL': 'redis://herokuRedis:6379' }
-  },
-  'heroku-postgresql': {
-    image: 'postgres',
-    env: { 'DATABASE_URL': 'postgres://postgres:@herokuPostgresql:5432/postgres' }
-  }
-};
+const ADDONS = require('../lib/addons');
 
 module.exports = function(topic) {
   return {
@@ -45,7 +36,8 @@ function init(context) {
 function createDockerfile(dir) {
   var dockerfile = path.join(dir, docker.filename);
   var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
-  var contents = `FROM ${ appJSON.image }\n`;
+  var image = appJSON.image || 'heroku/cedar:14';
+  var contents = `FROM ${ image }\n`;
 
   try {
     fs.statSync(dockerfile);
@@ -60,6 +52,8 @@ function createDockerfile(dir) {
 function createDockerCompose(dir) {
   var composeFile = path.join(dir, docker.composeFilename);
   var procfile = directory.readProcfile(dir);
+  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
+  var mountDir = directory.determineMountDir(dir);
 
   try {
     fs.statSync(composeFile);
@@ -70,23 +64,29 @@ function createDockerCompose(dir) {
   // read app.json to get the app's specification
   var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
 
-  // compile a list of addon links
-  var links = _.map(appJSON.addons || [], camelcase);
+  // get the base addon name, ignoring plan types
+  var addonNames = _.map(appJSON.addons, nameWithoutPlan);
 
-  // create environment variables to link the addons
-  var envs = _.reduce(appJSON.addons, addonsToEnv, {});
+  // process only the addons that we have mappings for
+  var mappedAddons = _.filter(addonNames, _.has.bind(this, ADDONS));
 
-  // compile a list of process services
-  var processes = _.mapValues(procfile, processToService(links, envs));
+  // hyphens are not valid in link names for docker-compose
+  var links = _.map(mappedAddons || [], camelcase);
 
-  // build the 'shell' process for persistent changes, one-off tasks
+  // reduce all addon env vars into a single object
+  var envs = _.reduce(mappedAddons, reduceEnv, {});
+
+  // compile a list of process types from the procfile
+  var processes = _.mapValues(procfile, processToService(mountDir, links, envs));
+
+  // add a 'shell' process for persistent changes, one-off tasks
   processes.shell = _.extend(_.cloneDeep(processes.web), {
     command: 'bash',
-    volumes: ['.:/app/user']
+    volumes: [`.:${mountDir}`]
   });
 
-  // compile a list of addon services
-  var addons = _.zipObject(links, _.map(appJSON.addons, addonToService));
+  // zip all the addons into an object
+  var addons = _.zipObject(links, _.map(mappedAddons, addonToService));
 
   // combine processes and addons into a list of all services
   var services = _.extend({}, processes, addons);
@@ -97,17 +97,22 @@ function createDockerCompose(dir) {
   fs.writeFileSync(composeFile, composeContents, { encoding: 'utf8' });
   cli.log(`Wrote ${ docker.composeFilename }`);
 
-  function addonsToEnv(env, addon) {
+  function nameWithoutPlan(addon) {
+    return addon.split(':')[0];
+  }
+
+  function reduceEnv(env, addon) {
     _.extend(env, ADDONS[addon].env);
     return env;
   }
 
-  function processToService(links, envs) {
+  function processToService(mountDir, links, envs) {
     return function(command, procName) {
       var port = procName === 'web' ? docker.port : undefined;
       return _.pick({
         build: '.',
         command: `bash -c "${command.replace(new RegExp("\"", 'g'), "\\\"")}"`,
+        working_dir: mountDir,
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
         environment: _.extend(port ? { PORT: port } : {}, envs),
         ports: port ? [`${ port }:${ port }`] : undefined,

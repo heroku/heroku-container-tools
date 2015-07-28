@@ -11,6 +11,8 @@ var directory = require('../lib/directory');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
 
+const ADDONS = require('../lib/addons');
+
 module.exports = function(topic) {
   return {
     topic: topic,
@@ -25,7 +27,8 @@ module.exports = function(topic) {
 
 function release(context) {
   var procfile = directory.readProcfile(context.cwd);
-  var modifiedProc = _.mapValues(procfile, addUser);
+  var mountDir = directory.determineMountDir(context.cwd);
+  var modifiedProc = _.mapValues(procfile, prependMountDir(mountDir));
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   request = context.request || request;
@@ -33,18 +36,61 @@ function release(context) {
   if (!procfile) throw new Error('Procfile required. Aborting');
 
   return app.info()
+    .then(readRemoteAddons)
+    .then(compareLocalAddons)
+    .then(addMissingAddons)
     .then(createLocalSlug)
     .then(createRemoteSlug)
     .then(uploadSlug)
-    .then(releaseSlug);
+    .then(releaseSlug)
+    .then(showMessage);
 
-  function addUser(path) {
-    return path;
-    //return `user/${ path }`; // TODO: figure out how to allow both pathless procs (python foo) and user bins (myapp/bin/www)
+  function prependMountDir(mountDir) {
+    return function(cmd) {
+      return `cd ${ mountDir } && ${ cmd }`
+    }
+  }
+
+  function readRemoteAddons() {
+    return app.addons().list();
+  }
+
+  function compareLocalAddons(remoteAddons) {
+    var remoteNames = _.map(remoteAddons, getServiceName);
+    var appJSONLocation = path.join(context.cwd, 'app.json');
+    var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+    var localNames = appJSON.addons;
+    var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
+
+    console.log(`Remote addons: ${ remoteNames.join(', ')} (${ remoteNames.length })`);
+    console.log(`Local addons: ${ localNames.join(', ') } (${ localNames.length })`);
+    console.log(`Missing addons: ${ missingAddons.join(', ') } (${ missingAddons.length })`);
+
+    return Promise.resolve(missingAddons);
+
+    function getServiceName(addon) {
+      return addon.addon_service.name;
+    }
+
+    function isMissingFrom(list, addon) {
+      var name = addon.split(':')[0];
+      return list.indexOf(name) === -1;
+    }
+  }
+
+  function addMissingAddons(addons) {
+    return Promise.all(addons.map(createAddon));
+
+    function createAddon(name) {
+      console.log(`Provisioning ${ name }...`)
+      return app.addons().create({
+        plan: name
+      });
+    }
   }
 
   function createLocalSlug() {
-    cli.log('creating local slug...');
+    cli.log('Creating local slug...');
 
     return new Promise(function(resolve, reject) {
       var slugPath = os.tmpdir();
@@ -69,7 +115,7 @@ function release(context) {
 
       function tar(imageId) {
         cli.log('extracting slug from container...');
-        var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git ./app`, {
+        var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git --exclude=.cache --exclude=.buildpack ./app`, {
           encoding: 'utf8'
         }).trim();
         child.execSync(`docker wait ${containerId}`);
@@ -116,8 +162,20 @@ function release(context) {
 
   function releaseSlug(id) {
     cli.log('releasing slug...');
-    return app.releases().create({
-      slug: id
+
+    return heroku.request({
+      method: 'POST',
+      path: `${ app.path }/releases`,
+      headers: {
+        'Heroku-Deploy-Type': 'heroku-docker'
+      },
+      body: {
+        slug: id
+      }
     });
+  }
+
+  function showMessage(results) {
+    console.log(`Successfully released ${ results.app.name }!`);
   }
 }

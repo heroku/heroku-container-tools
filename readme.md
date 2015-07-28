@@ -9,6 +9,7 @@ You can also just clone [a simple example](https://github.com/hunterloftis/ascii
 ```
 $ git clone https://github.com/heroku/heroku-docker.git
 $ cd heroku-docker
+$ git checkout compose
 $ npm install
 $ heroku plugins:link
 ```
