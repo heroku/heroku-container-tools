@@ -52,6 +52,8 @@ function createDockerfile(dir) {
 function createDockerCompose(dir) {
   var composeFile = path.join(dir, docker.composeFilename);
   var procfile = directory.readProcfile(dir);
+  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
+  var mountDir = directory.determineMountDir(dir);
 
   try {
     fs.statSync(composeFile);
@@ -75,12 +77,12 @@ function createDockerCompose(dir) {
   var envs = _.reduce(mappedAddons, reduceEnv, {});
 
   // compile a list of process types from the procfile
-  var processes = _.mapValues(procfile, processToService(links, envs));
+  var processes = _.mapValues(procfile, processToService(mountDir, links, envs));
 
   // add a 'shell' process for persistent changes, one-off tasks
   processes.shell = _.extend(_.cloneDeep(processes.web), {
     command: 'bash',
-    volumes: ['.:/app/user']
+    volumes: [`.:${mountDir}`]
   });
 
   // zip all the addons into an object
@@ -104,12 +106,13 @@ function createDockerCompose(dir) {
     return env;
   }
 
-  function processToService(links, envs) {
+  function processToService(mountDir, links, envs) {
     return function(command, procName) {
       var port = procName === 'web' ? docker.port : undefined;
       return _.pick({
         build: '.',
         command: command,
+        working_dir: mountDir,
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
         environment: _.extend(port ? { PORT: port } : {}, envs),
         ports: port ? [`${ port }:${ port }`] : undefined,
