@@ -36,7 +36,7 @@ function init(context) {
 function createDockerfile(dir) {
   var dockerfile = path.join(dir, docker.filename);
   var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
-  var image = appJSON.image || 'heroku/cedar-14';
+  var image = appJSON.image || 'heroku/cedar:14';
   var contents = `FROM ${ image }\n`;
 
   try {
