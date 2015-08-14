@@ -111,7 +111,7 @@ function createDockerCompose(dir) {
       var port = procName === 'web' ? docker.port : undefined;
       return _.pick({
         build: '.',
-        command: `bash -c "${command.replace(new RegExp("\"", 'g'), "\\\"")}"`,
+        command: `bash -c '${command}'`,
         working_dir: mountDir,
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
         environment: _.extend(port ? { PORT: port } : {}, envs),
