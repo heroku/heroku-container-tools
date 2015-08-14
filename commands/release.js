@@ -59,7 +59,7 @@ function release(context) {
     var remoteNames = _.map(remoteAddons, getServiceName);
     var appJSONLocation = path.join(context.cwd, 'app.json');
     var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
-    var localNames = appJSON.addons;
+    var localNames = appJSON.addons || [];
     var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
 
     console.log(`Remote addons: ${ remoteNames.join(', ')} (${ remoteNames.length })`);
