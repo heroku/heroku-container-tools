@@ -7,6 +7,8 @@ var request = require('request');
 var agent = require('superagent');
 var cli = require('heroku-cli-util');
 var _ = require('lodash');
+var ProgressBar = require('progress');
+
 var directory = require('../lib/directory');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
@@ -137,10 +139,14 @@ function release(context) {
   }
 
   function uploadSlug(slug) {
-    cli.log('uploading slug...');
     var slugPath = slug[0];
     var slugInfo = slug[1];
     var size = fs.statSync(slugPath).size;
+    var mbs = Math.round(size / 1024 / 1024)
+    var bar = new ProgressBar(`uploading slug [:bar] :percent of ${ mbs } MB, :etas`, {
+      width: 20,
+      total: size
+    });
 
     return new Promise(function(resolve, reject) {
       var outStream = request({
@@ -154,9 +160,14 @@ function release(context) {
 
       fs.createReadStream(slugPath)
         .on('error', reject)
+        .on('data', updateProgress)
         .pipe(outStream)
         .on('error', reject)
         .on('response', resolve.bind(this, slugInfo.id));
+
+      function updateProgress(chunk) {
+        bar.tick(chunk.length);
+      }
     });
   }
 
