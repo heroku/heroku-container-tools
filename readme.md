@@ -1,65 +1,22 @@
-# Compose Test
+# Heroku Docker CLI plugin
 
-Trying out heroku-docker with docker-compose
+Heroku Toolbelt plugin to help configure, test and release apps to Heroku using Docker and Docker Compose.
 
-You can also just clone [a simple example](https://github.com/hunterloftis/asciify).
+See the [Dev Center Documentation](https://devcenter.heroku.com/articles/introduction-local-development-with-docker) for details of use.
 
-## Installation
+## Developing and contributing
+
+Checkout the plugin source code and tell the Heroku CLI to use your local version of the plugin (instead of the default one distributed with NPM).
 
 ```
 $ git clone https://github.com/heroku/heroku-docker.git
 $ cd heroku-docker
 $ git checkout compose
 $ npm install
-$ heroku plugins:link
+$ heroku plugins:link .
 ```
 
-## Workflow
+### Add-ons
 
-### 1. app.json
-
-Create an app.json file with an `image` key and an `addons` array:
-
-```json
-{
-  "name": "Example Name",
-  "description": "An example app.json for heroku-docker",
-  "image": "hunterloftis/node",
-  "addons": [ "heroku-redis", "heroku-postgresql" ]
-}
-```
-
-### 2. Procfile
-
-Create a Procfile as usual:
-
-```
-web: node server.js
-worker: node worker.js
-```
-
-### 3. Initialize Docker assets for the app
-
-```
-$ heroku docker:init
-Wrote Dockerfile
-Wrote docker-compose.yml
-```
-
-### 4. Start your local cloud
-
-```
-$ docker-compose up web worker
-```
-
-### 5. Open your web service
-
-```
-$ open "http://$(boot2docker ip)"
-```
-
-### 6. Edit with a normal local workflow
-
-```
-$ docker-compose run --service-ports shell
-```
+The mapping from Heroku add-on specified in `app.json` to container configured in `docker-composer.yml` is tracked in `lib\app.json`.
+The mapping currently includes a limited subset of add-ons that we have tested. We welcome additions in the form of PRs.
