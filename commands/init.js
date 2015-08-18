@@ -8,6 +8,7 @@ var cli = require('heroku-cli-util');
 var YAML = require('yamljs');
 var camelcase = require('camelcase');
 
+var readAppJSON = require('../lib/app-json');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
 var directory = require('../lib/directory');
@@ -35,7 +36,7 @@ function init(context) {
 
 function createDockerfile(dir) {
   var dockerfile = path.join(dir, docker.filename);
-  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
+  var appJSON = readAppJSON(dir);
   var image = appJSON.image || 'heroku/cedar:14';
   var contents = `FROM ${ image }\n`;
 
@@ -52,7 +53,6 @@ function createDockerfile(dir) {
 function createDockerCompose(dir) {
   var composeFile = path.join(dir, docker.composeFilename);
   var procfile = directory.readProcfile(dir);
-  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
   var mountDir = directory.determineMountDir(dir);
 
   try {
@@ -62,7 +62,7 @@ function createDockerCompose(dir) {
   catch (e) {}
 
   // read app.json to get the app's specification
-  var appJSON = JSON.parse(fs.readFileSync(path.join(dir, 'app.json'), { encoding: 'utf8' }));
+  var appJSON = readAppJSON(dir);
 
   // get the base addon name, ignoring plan types
   var addonNames = _.map(appJSON.addons, nameWithoutPlan);

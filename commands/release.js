@@ -9,6 +9,7 @@ var cli = require('heroku-cli-util');
 var _ = require('lodash');
 var ProgressBar = require('progress');
 
+var readAppJSON = require('../lib/app-json');
 var directory = require('../lib/directory');
 var docker = require('../lib/docker');
 var safely = require('../lib/safely');
@@ -59,8 +60,7 @@ function release(context) {
 
   function compareLocalAddons(remoteAddons) {
     var remoteNames = _.map(remoteAddons, getServiceName);
-    var appJSONLocation = path.join(context.cwd, 'app.json');
-    var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+    var appJSON = readAppJSON(context.cwd);
     var localNames = appJSON.addons || [];
     var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
 
