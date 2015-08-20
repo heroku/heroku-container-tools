@@ -112,11 +112,13 @@ function release(context) {
       function onBuildExit(code) {
         if (code !== 0) throw new Error('Build failed');
         var tokens = output.match(/\S+/g);
+        var fromMatch = output.match(/FROM ([^\s]+)/) || [];
+        var imageName = fromMatch[1];
         var imageId = tokens[tokens.length - 1];
-        tar(imageId);
+        tar(imageName, imageId);
       }
 
-      function tar(imageId) {
+      function tar(imageName, imageId) {
         cli.log('extracting slug from container...');
         var containerId = child.execSync(`docker run -d ${imageId} tar cfvz /tmp/slug.tgz -C / --exclude=.git --exclude=.cache --exclude=.buildpack ./app`, {
           encoding: 'utf8'
@@ -124,20 +126,24 @@ function release(context) {
         child.execSync(`docker wait ${containerId}`);
         child.execSync(`docker cp ${containerId}:/tmp/slug.tgz ${slugPath}`);
         child.execSync(`docker rm -f ${containerId}`);
-        resolve(path.join(slugPath, 'slug.tgz'));
+        resolve({
+          path: path.join(slugPath, 'slug.tgz'),
+          name: imageName
+        });
       }
     });
   }
 
-  function createRemoteSlug(slugPath) {
-    console.log('path:', slugPath);
-    cli.log('creating remote slug...');
+  function createRemoteSlug(slug) {
+    var lang = `heroku-docker (${ slug.name || 'unknown'})`;
+    cli.log(`creating remote slug...`);
+    cli.log(`language-pack: ${ lang }`);
     cli.log('remote process types:', modifiedProc);
     var slugInfo = app.slugs().create({
       process_types: modifiedProc,
-      buildpack_provided_description: appJSON.image || 'docker (unknown)'
+      buildpack_provided_description: lang
     });
-    return Promise.all([slugPath, slugInfo])
+    return Promise.all([slug.path, slugInfo])
   }
 
   function uploadSlug(slug) {
