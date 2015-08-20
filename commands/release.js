@@ -33,6 +33,9 @@ function release(context) {
   var modifiedProc = _.mapValues(procfile, prependMountDir(mountDir));
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
+  var appJSONLocation = path.join(context.cwd, 'app.json');
+  var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+
   request = context.request || request;
 
   if (!procfile) throw new Error('Procfile required. Aborting');
@@ -59,8 +62,6 @@ function release(context) {
 
   function compareLocalAddons(remoteAddons) {
     var remoteNames = _.map(remoteAddons, getServiceName);
-    var appJSONLocation = path.join(context.cwd, 'app.json');
-    var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
     var localNames = appJSON.addons || [];
     var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
 
@@ -133,7 +134,8 @@ function release(context) {
     cli.log('creating remote slug...');
     cli.log('remote process types:', modifiedProc);
     var slugInfo = app.slugs().create({
-      process_types: modifiedProc
+      process_types: modifiedProc,
+      buildpack_provided_description: appJSON.image
     });
     return Promise.all([slugPath, slugInfo])
   }
