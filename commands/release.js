@@ -135,7 +135,7 @@ function release(context) {
     cli.log('remote process types:', modifiedProc);
     var slugInfo = app.slugs().create({
       process_types: modifiedProc,
-      buildpack_provided_description: appJSON.image
+      buildpack_provided_description: appJSON.image || '(unknown)'
     });
     return Promise.all([slugPath, slugInfo])
   }
