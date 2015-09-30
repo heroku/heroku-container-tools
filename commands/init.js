@@ -98,8 +98,7 @@ function createDockerCompose(procfile, addons, mountDir) {
 
   // add a 'shell' process for persistent changes, one-off tasks
   processServices.shell = _.extend(_.cloneDeep(processServices.web), {
-    command: 'bash',
-    volumes: [`.:${ volumeMount }`]
+    command: 'bash'
   });
 
   // zip all the addons into an object
