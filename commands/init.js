@@ -79,7 +79,7 @@ function createDockerfile(image) {
 }
 
 function createDockerCompose(procfile, addons, mountDir) {
-  var volumeMount = path.join('/app/user', mountDir || '');
+  var volumeMount = path.posix.join('/app/user', mountDir || '');
 
   // get the base addon name, ignoring plan types
   var addonNames = _.map(addons, nameWithoutPlan);
