@@ -126,6 +126,7 @@ function createDockerCompose(procfile, addons, mountDir) {
       return _.pick({
         build: '.',
         command: `bash -c '${command}'`,
+        volumes: [`.:${ mountDir }`],
         working_dir: mountDir,
         dockerfile: undefined,                          // TODO: docker.filename (once docker-compose 1.3.0 is released)
         environment: _.extend(port ? { PORT: port } : {}, envs),
