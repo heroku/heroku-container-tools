@@ -125,7 +125,7 @@ function release(context) {
         }).trim();
         child.execSync(`docker wait ${containerId}`);
         child.execSync(`docker cp ${containerId}:/tmp/slug.tgz ${slugPath}`);
-        child.execSync(`docker rm -f ${containerId}`);
+        child.execSync(`docker rm -f ${containerId} || :`);
         resolve({
           path: path.join(slugPath, 'slug.tgz'),
           name: imageName
