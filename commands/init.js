@@ -140,7 +140,7 @@ function createDockerCompose(procfile, addons, mountDir) {
   }
 
   function addonToService(addon) {
-    var service = {}
+    var service = {};
 
     // fallback for backward compatibility
     if ((typeof ADDONS[addon].image) === 'string') {
