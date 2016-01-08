@@ -56,6 +56,15 @@ function release(context) {
     }
   }
 
+  function readCommit() {
+    return new Promise(function (fulfill, reject) {
+      child.execFile('git', ['rev-parse', 'HEAD'], function (error, stdout) {
+        if (error) { return fulfill(); }
+        return fulfill(stdout.trim());
+      });
+    });
+  }
+
   function readRemoteAddons() {
     return app.addons().list();
   }
@@ -135,15 +144,19 @@ function release(context) {
   }
 
   function createRemoteSlug(slug) {
-    var lang = `heroku-docker (${ slug.name || 'unknown'})`;
-    cli.log(`creating remote slug...`);
-    cli.log(`language-pack: ${ lang }`);
-    cli.log('remote process types:', modifiedProc);
-    var slugInfo = app.slugs().create({
-      process_types: modifiedProc,
-      buildpack_provided_description: lang
+    return readCommit().then(commit => {
+      var lang = `heroku-docker (${ slug.name || 'unknown'})`;
+      cli.log(`creating remote slug...`);
+      cli.log(`language-pack: ${ lang }`);
+      cli.log('remote process types:', modifiedProc);
+      cli.log('commit id:', commit);
+      var slugInfo = app.slugs().create({
+        process_types: modifiedProc,
+        buildpack_provided_description: lang,
+        commit
+      });
+      return Promise.all([slug.path, slugInfo])
     });
-    return Promise.all([slug.path, slugInfo])
   }
 
   function uploadSlug(slug) {
