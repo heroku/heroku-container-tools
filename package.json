@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "camelcase": "1.0.2",
-    "co": "^4.6.0",
+    "co": "4.6.0",
     "dotenv": "^1.1.0",
     "heroku-cli-util": "^1.8.1",
     "heroku-client": "^1.9.1",
