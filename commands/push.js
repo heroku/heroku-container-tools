@@ -8,18 +8,17 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'push',
-    description: 'Deploys a Docker image to your Heroku app',
+    description: 'Builds, then pushes a Docker image to deploy your Heroku app',
     needsApp: true,
     needsAuth: true,
     args: [{ name: 'process', optional: true }],
-    run: cli.command(co.wrap(release))
+    run: cli.command(co.wrap(push))
   };
 };
 
-function* release(context, heroku) {
+function* push(context, heroku) {
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com';
   let registry = `registry.${ herokuHost }`;
-  let password = context.auth.password;
   let proc = context.args.process || 'web';
   let resource = `${ registry }/${ context.app }/${ proc }`;
 
