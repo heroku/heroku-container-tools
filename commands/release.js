@@ -110,7 +110,16 @@ function release(context) {
     return new Promise(function(resolve, reject) {
       var slugPath = os.tmpdir();
       var output = '';
-      var build = child.spawn('docker-compose', ['build', 'web']);
+
+      if (fs.existsSync("docker-compose.yml")) {
+        var cmd = 'docker-compose';
+        var args = ['build', 'web'];
+      } else {
+        var cmd = 'docker';
+        var args = ['build', '--tag', context.app, '.'];
+      }
+
+      var build = child.spawn(cmd, args);
 
       build.stdout.pipe(process.stdout);
       build.stderr.pipe(process.stderr);
@@ -123,7 +132,7 @@ function release(context) {
 
       function onBuildExit(code) {
         if (code !== 0) {
-          cli.log('Build failed. Make sure `docker-compose build web` returns a 0 exit status.');
+          cli.log('Build failed. Make sure `' + cmd + ' ' + args.join(' ') + '` returns a 0 exit status.');
           process.exit(1);
         }
 
