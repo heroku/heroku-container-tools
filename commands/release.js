@@ -34,7 +34,11 @@ function release(context) {
   var heroku = context.heroku || new Heroku({ token: context.auth.password });
   var app = context.heroku ? context.app : heroku.apps(context.app);
   var appJSONLocation = path.join(context.cwd, 'app.json');
-  var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+  var appJSON;
+
+  if (fs.existsSync(appJSONLocation)) {
+    var appJSON = JSON.parse(fs.readFileSync(appJSONLocation, { encoding: 'utf8' }));
+  }
 
   request = context.request || request;
 
@@ -57,10 +61,18 @@ function release(context) {
   }
 
   function readRemoteAddons() {
-    return app.addons().list();
+    if (appJSON) {
+      return app.addons().list();
+    } else {
+      return [];
+    }
   }
 
   function compareLocalAddons(remoteAddons) {
+    if (!appJSON) {
+      return Promise.resolve([]);
+    }
+
     var remoteNames = _.map(remoteAddons, getServiceName);
     var localNames = appJSON.addons || [];
     var missingAddons = _.filter(localNames, isMissingFrom.bind(this, remoteNames));
