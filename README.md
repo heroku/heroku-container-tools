@@ -13,22 +13,22 @@ $ heroku plugins:install heroku-container-tools
 See the [Dev Center Documentation](https://devcenter.heroku.com/articles/introduction-local-development-with-docker) for details of use.
 
 ```
-$ heroku help docker
-Usage: heroku docker
+$ heroku help container
+Usage: heroku container
 
   Use Docker to build and deploy Heroku apps
 
 Additional commands, type "heroku help COMMAND" for more details:
 
-  docker:init     #  create Dockerfile and docker-compose.yml
-  docker:release  #  create and release slug to app
+  container:init     #  create Dockerfile and docker-compose.yml
+  container:release  #  create and release slug to app
 ```
 
 For help with a particular command:
 
 ```
-$ heroku help docker:init
-Usage: heroku docker:init
+$ heroku help container:init
+Usage: heroku container:init
 
    -i, --image IMAGE   # the Docker image from which to inherit
    -f, --force         # overwrite existing Dockerfile and docker-compose.yml
