@@ -8,7 +8,6 @@ module.exports = function(topic) {
   return {
     topic: topic,
     command: 'login',
-    flags: [{ name: 'verbose', char: 'v', hasValue: false }],
     description: 'Logs in to the Heroku Docker registry',
     needsApp: false,
     needsAuth: true,
@@ -22,14 +21,14 @@ function* login(context, heroku) {
   let password = context.auth.password;
 
   try {
-    let user = yield dockerLogin(registry, password, context.flags.verbose);
+    let user = yield dockerLogin(registry, password);
   }
   catch (err) {
     cli.error(`Error: docker login exited with ${ err }`);
   }
 }
 
-function dockerLogin(registry, password, verbose) {
+function dockerLogin(registry, password) {
   return new Promise((resolve, reject) => {
     let args = [
       'login',
@@ -38,9 +37,6 @@ function dockerLogin(registry, password, verbose) {
       `--password=${ password }`,
       registry
     ];
-    if (verbose) {
-      console.log(['> docker'].concat(args).join(' '));
-    }
     child.spawn('docker', args, { stdio: 'inherit' })
       .on('exit', (code, signal) => {
         if (signal || code) reject(signal || code);
