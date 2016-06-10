@@ -1,6 +1,6 @@
-# Heroku Docker CLI plugin
+# Heroku container tools CLI plugin
 
-Heroku Toolbelt plugin to help configure, test and release apps to Heroku using Docker and Docker Compose.
+Heroku Toolbelt plugin to push Docker images to the Heroku container registry.
 
 ## Installation
 
@@ -20,20 +20,8 @@ Usage: heroku container
 
 Additional commands, type "heroku help COMMAND" for more details:
 
-  container:init     #  create Dockerfile and docker-compose.yml
-  container:release  #  create and release slug to app
-```
-
-For help with a particular command:
-
-```
-$ heroku help container:init
-Usage: heroku container:init
-
-   -i, --image IMAGE   # the Docker image from which to inherit
-   -f, --force         # overwrite existing Dockerfile and docker-compose.yml
-
-  Creates a Dockerfile and docker-compose.yml for the app specified in app.json
+  container:login           #  Logs in to the Heroku container registry
+  container:push [PROCESS]  #  Builds, then pushes a Docker image to deploy your Heroku app
 ```
 
 ## Developing and contributing
@@ -46,8 +34,3 @@ $ cd heroku-container-tools
 $ npm install
 $ heroku plugins:link .
 ```
-
-### Add-ons
-
-The mapping from Heroku add-on specified in `app.json` to container configured in `docker-compose.yml` is tracked in `lib\app.json`.
-The mapping currently includes a limited subset of add-ons that we have tested. We welcome additions in the form of PRs.
