@@ -9,7 +9,7 @@ module.exports = function(topic) {
     topic: topic,
     command: 'login',
     flags: [{ name: 'verbose', char: 'v', hasValue: false }],
-    description: 'Logs in to the Heroku Docker registry',
+    description: 'Logs in to the Heroku container registry',
     needsApp: false,
     needsAuth: true,
     run: cli.command(co.wrap(login))
