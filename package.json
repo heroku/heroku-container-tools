@@ -2,7 +2,7 @@
   "name": "heroku-container-tools",
   "version": "3.0.0",
   "topic": "container",
-  "description": "Use Docker to build and deploy Heroku apps",
+  "description": "Use containers to build and deploy Heroku apps",
   "main": "index.js",
   "repository": "https://github.com/heroku/heroku-container-tools",
   "scripts": {
