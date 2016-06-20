@@ -1,6 +1,6 @@
-# Heroku Docker CLI plugin
+# Heroku Container Tools CLI plugin
 
-Heroku Toolbelt plugin to help configure, test and release apps to Heroku using Docker and Docker Compose.
+Heroku Toolbelt plugin to help configure, test and release apps to Heroku using local containers.
 
 ## Installation
 
@@ -16,7 +16,7 @@ See the [Dev Center Documentation](https://devcenter.heroku.com/articles/introdu
 $ heroku help container
 Usage: heroku container
 
-  Use Docker to build and deploy Heroku apps
+  Use containers to build and deploy Heroku apps
 
 Additional commands, type "heroku help COMMAND" for more details:
 
