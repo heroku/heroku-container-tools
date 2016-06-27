@@ -138,16 +138,47 @@ function release(context) {
     });
   }
 
-  function createRemoteSlug(slug) {
-    var lang = `heroku-container-tools (${ slug.name || 'unknown'})`;
-    cli.log(`creating remote slug...`);
-    cli.log(`language-pack: ${ lang }`);
-    cli.log('remote process types:', modifiedProc);
-    var slugInfo = app.slugs().create({
-      process_types: modifiedProc,
-      buildpack_provided_description: lang
+  function getGitOutput(args) {
+    return new Promise(function (resolve, reject) {
+      child.execFile('git', args, function (error, stdout) {
+        return error ? reject(error) : resolve(stdout.trim());
+      });
     });
-    return Promise.all([slug.path, slugInfo])
+  }
+
+  function getCommitMessage() {
+    return getGitOutput(['log', '-1', '--pretty=%B', 'HEAD']);
+  }
+
+  function getCommitHash() {
+    return getGitOutput(['rev-parse', 'HEAD']);
+  }
+
+  function getCommitDetails() {
+    return Promise.all([getCommitHash(), getCommitMessage()])
+      .catch(() => [])
+      .then((details) => ({hash: details[0], message: details[1]}));
+  }
+
+  function createRemoteSlug(slug) {
+    return getCommitDetails()
+      .then(function(commitDetails) {
+        var lang = `heroku-container-tools (${ slug.name || 'unknown'})`;
+        cli.log(`creating remote slug...`);
+        cli.log(`language-pack: ${ lang }`);
+        cli.log('remote process types:', modifiedProc);
+        cli.log('commit hash:', commitDetails.hash);
+        cli.log('commit message:', commitDetails.message);
+
+        var slugInfo = app.slugs().create({
+          process_types: modifiedProc,
+          buildpack_provided_description: lang,
+          commit: commitDetails.hash,
+          commit_description: commitDetails.message
+        });
+
+        return Promise.all([slug.path, slugInfo])
+      });
   }
 
   function uploadSlug(slug) {
