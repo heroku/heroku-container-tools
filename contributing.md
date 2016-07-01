@@ -1,8 +1,8 @@
 # Contributing
 
 You want to add new language support? Awesome!
-Figured out a way to seamlessly integrate with docker-compose and addons? Even better!
-We're in the very early stages of exploring the possibilities of Docker + Heroku,
+Figured out a way to seamlessly integrate with heroku-container-tools and addons? Even better!
+We're in the very early stages of exploring the possibilities of 3rd party containers on Heroku,
 so all ideas are welcome.
 
 The simplest way to get started is to clone the repo and symlink it to your
@@ -16,7 +16,7 @@ When you'd like to go back to using the official release:
 
 ```
 make unlink
-heroku plugins:install heroku-docker
+heroku plugins:install heroku-container-tools
 ```
 
 While developing, you can run the basic test suite:
@@ -65,7 +65,7 @@ The best way to start is by checking out the
 ## Documentation
 
 Once you've got a working platform, be sure to document how to use it
-with at least one example. One of the coolest parts about this Docker
+with at least one example. One of the coolest parts about this container
 workflow is how easy it is to get started quickly. Since all dependencies
 are self-contained, you should be able to create a hello-world type
 example that doesn't require the user to install anything new.
