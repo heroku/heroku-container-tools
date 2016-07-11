@@ -1,5 +1,7 @@
 # Heroku Container Tools CLI plugin
 
+**/!\ This plugin is deprecated. Please see our [Container Registry and Runtime](https://devcenter.heroku.com/articles/container-registry-and-runtime) instead.**
+
 Heroku Toolbelt plugin to help configure, test and release apps to Heroku using local containers.
 
 ## Installation
@@ -9,8 +11,6 @@ $ heroku plugins:install heroku-container-tools
 ```
 
 ## Use
-
-See the [Dev Center Documentation](https://devcenter.heroku.com/articles/introduction-local-development-with-docker) for details of use.
 
 ```
 $ heroku help container
