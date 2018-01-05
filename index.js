@@ -1,5 +1,9 @@
 var pkg = require('./package.json');
 
 module.exports = {
-  commands: []
+  commands: [{
+    topic: 'container',
+    hidden: true,
+    run: () => console.log('noop!')
+  }]
 };
