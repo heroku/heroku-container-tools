@@ -141,7 +141,8 @@ function createDockerCompose(procfile, addons, mountDir) {
 
   function addonToService(addon) {
     return {
-      image: ADDONS[addon].image
+      image: ADDONS[addon].image,
+      environment: ADDONS[addon].env
     };
   }
 }
