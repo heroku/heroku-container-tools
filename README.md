@@ -49,5 +49,5 @@ $ heroku plugins:link .
 
 ### Add-ons
 
-The mapping from Heroku add-on specified in `app.json` to container configured in `docker-compose.yml` is tracked in `lib\app.json`.
+The mapping from Heroku add-on specified in `app.json` to container configured in `docker-compose.yml` is tracked in `lib\addons.js`.
 The mapping currently includes a limited subset of add-ons that we have tested. We welcome additions in the form of PRs.

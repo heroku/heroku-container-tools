@@ -140,9 +140,21 @@ function createDockerCompose(procfile, addons, mountDir) {
   }
 
   function addonToService(addon) {
-    return {
-      image: ADDONS[addon].image
-    };
+    var service = {};
+
+    // fallback for backward compatibility
+    if ((typeof ADDONS[addon].image) === 'string') {
+      service.image = ADDONS[addon].image;
+    } else {
+      service.image = ADDONS[addon].image.name;
+
+      // All the other properties except `image` are optional.
+      if ('env' in ADDONS[addon].image) {
+        service.environment = ADDONS[addon].image.env;
+      }
+    }
+
+    return service;
   }
 }
 
